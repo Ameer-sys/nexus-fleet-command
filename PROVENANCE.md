@@ -35,4 +35,4 @@ On the training host, from the frozen campaign directory:
 PYTHONPATH=src ../bb_mjlab/.venv/bin/python /path/to/export_training.py /tmp/bb-sim-export
 ```
 
-Copy those numeric exports into `assets/reference`, then rebuild locally with `.venv/bin/python -m bbsim.model`. No complex training mesh is needed after the export. The archived `lean_policy_export.h`, independent C fixture and source hashes permit checking the recovered lean policy later.
+Copy those numeric exports into `assets/reference`, then rebuild locally with `uv run --locked python -m bbsim.model`. No complex training mesh is needed after the export. The archived `lean_policy_export.h`, independent C fixture and source hashes permit checking the recovered lean policy later.
