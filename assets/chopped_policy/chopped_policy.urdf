@@ -1,0 +1,735 @@
+<?xml version='1.0' encoding='utf-8'?>
+<robot name="chopped_urdf_v2_training_dynamics">
+  <mujoco>
+    <compiler discardvisual="false" fusestatic="false" meshdir="../source/chopped_urdf_v2/meshes" strippath="true" />
+  </mujoco>
+  <link name="base">
+    <inertial>
+      <origin xyz="-0.0068050715699995 -0.00142723121 0.3438652180000475" rpy="0 0 0" />
+      <mass value="6.931796" />
+      <inertia ixx="1.6746405132388738" iyy="1.643490000000001" izz="0.044621612861126675" ixy="0.0004245080278503476" ixz="-0.023719361061770347" iyz="-0.003136173933742832" />
+    </inertial>
+    <visual name="base_extrusion__base_extrusion">
+      <origin xyz="0.01130156399012276 -1.439842534176755e-08 -0.006968929453993605" rpy="-1.570798682849108 -5.051948402101658e-05 1.789401320451134e-07" />
+      <geometry>
+        <mesh filename="../source/chopped_urdf_v2/meshes/Base_Extrusion__Base_Extrusion.stl" scale="1 1 1" />
+      </geometry>
+      <material name="base_extrusion__base_extrusion_color">
+        <color rgba="0.792157 0.819608 0.933333 1" />
+      </material>
+    </visual>
+    <visual name="base_extrusion__base_extrusion__base_extrusion__base_extrusion">
+      <origin xyz="0.01130156399012276 -1.439842534176755e-08 -0.006968929453993605" rpy="-1.570798682849108 -5.051948402101658e-05 1.789401320451134e-07" />
+      <geometry>
+        <mesh filename="../source/chopped_urdf_v2/meshes/Base_Extrusion__Base_Extrusion__Base_Extrusion__Base_Extrusion.stl" scale="1 1 1" />
+      </geometry>
+      <material name="base_extrusion__base_extrusion__base_extrusion__base_extrusion_color">
+        <color rgba="0.8 0.8 0.8 1" />
+      </material>
+    </visual>
+    <visual name="base_plate__base_plate">
+      <origin xyz="0.01130156399012276 -1.439842534176755e-08 -0.006968929453993605" rpy="-1.570798682849108 -5.051948402101658e-05 1.789401320451134e-07" />
+      <geometry>
+        <mesh filename="../source/chopped_urdf_v2/meshes/Base_Plate__Base_Plate.stl" scale="1 1 1" />
+      </geometry>
+      <material name="base_plate__base_plate_color">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <visual name="base_print__base_print">
+      <origin xyz="0.01130156399012277 -1.439842534176755e-08 -0.006968929453993605" rpy="-1.570798682849108 -5.051948402101658e-05 1.789401320451134e-07" />
+      <geometry>
+        <mesh filename="../source/chopped_urdf_v2/meshes/Base_Print__Base_Print.stl" scale="1 1 1" />
+      </geometry>
+      <material name="base_print__base_print_color">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <visual name="battery_terminal__battery_terminal">
+      <origin xyz="0.01130156399012277 -1.439842534176755e-08 -0.006968929453993605" rpy="-1.570798682849108 -5.051948402101658e-05 1.789401320451134e-07" />
+      <geometry>
+        <mesh filename="../source/chopped_urdf_v2/meshes/Battery_Terminal__Battery_Terminal.stl" scale="1 1 1" />
+      </geometry>
+      <material name="battery_terminal__battery_terminal_color">
+        <color rgba="1 0.756863 0.054902 1" />
+      </material>
+    </visual>
+    <visual name="bottom_cover_back__bottom_cover_back__bottom_cover_back__bottom_cover_back">
+      <origin xyz="0.0153029414604423 0.000135263075757939 -0.03423542766005733" rpy="-1.570798682849109 -5.051948426260111e-05 1.789401347096486e-07" />
+      <geometry>
+        <mesh filename="../source/chopped_urdf_v2/meshes/Bottom_Cover_Back__Bottom_Cover_Back__Bottom_Cover_Back__Bottom_Cover_Back.stl" scale="1 1 1" />
+      </geometry>
+      <material name="bottom_cover_back__bottom_cover_back__bottom_cover_back__bottom_cover_back_color">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <visual name="bottom_cover_front__bottom_cover_front__bottom_cover_front__bottom_cover_front">
+      <origin xyz="0.01530294146044229 0.0001352630757579268 -0.03423542766005738" rpy="-1.570798682849109 -5.051948426260111e-05 1.789401347096486e-07" />
+      <geometry>
+        <mesh filename="../source/chopped_urdf_v2/meshes/Bottom_Cover_Front__Bottom_Cover_Front__Bottom_Cover_Front__Bottom_Cover_Front.stl" scale="1 1 1" />
+      </geometry>
+      <material name="bottom_cover_front__bottom_cover_front__bottom_cover_front__bottom_cover_front_color">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <visual name="camera_cover__camera_cover__camera_cover__camera_cover">
+      <origin xyz="0.01130156399012278 -1.439842534176755e-08 -0.006968929453993605" rpy="-1.570798682849108 -5.051948402101658e-05 1.789401320451134e-07" />
+      <geometry>
+        <mesh filename="../source/chopped_urdf_v2/meshes/Camera_Cover__Camera_Cover__Camera_Cover__Camera_Cover.stl" scale="1 1 1" />
+      </geometry>
+      <material name="camera_cover__camera_cover__camera_cover__camera_cover_color">
+        <color rgba="0.25098 0.25098 0.25098 1" />
+      </material>
+    </visual>
+    <visual name="cover_middlebot_back__cover_middlebot_back__cover_middlebot_back__cover_middlebot_back">
+      <origin xyz="0.0153029414604423 0.0001352630757579372 -0.03423542766005733" rpy="-1.570798682849109 -5.051948426260111e-05 1.789401347096486e-07" />
+      <geometry>
+        <mesh filename="../source/chopped_urdf_v2/meshes/Cover_MiddleBot_Back__Cover_MiddleBot_Back__Cover_MiddleBot_Back__Cover_MiddleBot_Back.stl" scale="1 1 1" />
+      </geometry>
+      <material name="cover_middlebot_back__cover_middlebot_back__cover_middlebot_back__cover_middlebot_back_color">
+        <color rgba="0.894118 0.894118 0.894118 1" />
+      </material>
+    </visual>
+    <visual name="cover_middlebot_front__cover_middlebot_front__cover_middlebot_front__cover_middlebot_front">
+      <origin xyz="0.01530294146044229 0.0001352630757579286 -0.03423542766005737" rpy="-1.570798682849109 -5.051948426260111e-05 1.789401347096486e-07" />
+      <geometry>
+        <mesh filename="../source/chopped_urdf_v2/meshes/Cover_MiddleBot_Front__Cover_MiddleBot_Front__Cover_MiddleBot_Front__Cover_MiddleBot_Front.stl" scale="1 1 1" />
+      </geometry>
+      <material name="cover_middlebot_front__cover_middlebot_front__cover_middlebot_front__cover_middlebot_front_color">
+        <color rgba="0.894118 0.894118 0.894118 1" />
+      </material>
+    </visual>
+    <visual name="cover_middletop_back__cover_middletop_back__cover_middletop_back__cover_middletop_back">
+      <origin xyz="0.0153029414604423 0.0001352630757579355 -0.03423542766005734" rpy="-1.570798682849109 -5.051948426260111e-05 1.789401347096486e-07" />
+      <geometry>
+        <mesh filename="../source/chopped_urdf_v2/meshes/Cover_MiddleTop_Back__Cover_MiddleTop_Back__Cover_MiddleTop_Back__Cover_MiddleTop_Back.stl" scale="1 1 1" />
+      </geometry>
+      <material name="cover_middletop_back__cover_middletop_back__cover_middletop_back__cover_middletop_back_color">
+        <color rgba="0.894118 0.894118 0.894118 1" />
+      </material>
+    </visual>
+    <visual name="cover_middletop_front__cover_middletop_front__cover_middletop_front__cover_middletop_front">
+      <origin xyz="0.0153029414604423 0.0001352630757579303 -0.03423542766005736" rpy="-1.570798682849109 -5.051948426260111e-05 1.789401347096486e-07" />
+      <geometry>
+        <mesh filename="../source/chopped_urdf_v2/meshes/Cover_MiddleTop_Front__Cover_MiddleTop_Front__Cover_MiddleTop_Front__Cover_MiddleTop_Front.stl" scale="1 1 1" />
+      </geometry>
+      <material name="cover_middletop_front__cover_middletop_front__cover_middletop_front__cover_middletop_front_color">
+        <color rgba="0.894118 0.894118 0.894118 1" />
+      </material>
+    </visual>
+    <visual name="cover_top_front__cover_top_front__cover_top_front__cover_top_front">
+      <origin xyz="0.0153029414604423 0.000135263075757932 -0.03423542766005735" rpy="-1.570798682849109 -5.051948426260111e-05 1.789401347096486e-07" />
+      <geometry>
+        <mesh filename="../source/chopped_urdf_v2/meshes/Cover_Top_Front__Cover_Top_Front__Cover_Top_Front__Cover_Top_Front.stl" scale="1 1 1" />
+      </geometry>
+      <material name="cover_top_front__cover_top_front__cover_top_front__cover_top_front_color">
+        <color rgba="0.894118 0.894118 0.894118 1" />
+      </material>
+    </visual>
+    <visual name="head__head__head__head">
+      <origin xyz="0.01130156399012277 -1.439842534176755e-08 -0.006968929453993605" rpy="-1.570798682849108 -5.051948402101658e-05 1.789401320451134e-07" />
+      <geometry>
+        <mesh filename="../source/chopped_urdf_v2/meshes/Head__Head__Head__Head.stl" scale="1 1 1" />
+      </geometry>
+      <material name="head__head__head__head_color">
+        <color rgba="0.894118 0.894118 0.894118 1" />
+      </material>
+    </visual>
+    <visual name="head_cover__head_cover__head_cover__head_cover">
+      <origin xyz="0.01130156399012278 -1.439842534176755e-08 -0.006968929453993605" rpy="-1.570798682849108 -5.051948402101658e-05 1.789401320451134e-07" />
+      <geometry>
+        <mesh filename="../source/chopped_urdf_v2/meshes/Head_Cover__Head_Cover__Head_Cover__Head_Cover.stl" scale="1 1 1" />
+      </geometry>
+      <material name="head_cover__head_cover__head_cover__head_cover_color">
+        <color rgba="0.894118 0.894118 0.894118 1" />
+      </material>
+    </visual>
+    <visual name="main_extrusion__main_extrusion__main_extrusion__main_extrusion">
+      <origin xyz="0.01130156399012276 -1.439842534176755e-08 -0.006968929453993605" rpy="-1.570798682849108 -5.051948402101658e-05 1.789401320451134e-07" />
+      <geometry>
+        <mesh filename="../source/chopped_urdf_v2/meshes/Main_Extrusion__Main_Extrusion__Main_Extrusion__Main_Extrusion.stl" scale="1 1 1" />
+      </geometry>
+      <material name="main_extrusion__main_extrusion__main_extrusion__main_extrusion_color">
+        <color rgba="0.301961 0.301961 0.301961 1" />
+      </material>
+    </visual>
+    <visual name="mirror30__mirror30">
+      <origin xyz="0.01130156399012277 -1.439842534176755e-08 -0.006968929453993605" rpy="-1.570798682849108 -5.051948402101658e-05 1.789401320451134e-07" />
+      <geometry>
+        <mesh filename="../source/chopped_urdf_v2/meshes/Mirror30__Mirror30.stl" scale="1 1 1" />
+      </geometry>
+      <material name="mirror30__mirror30_color">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <visual name="top_cover_back__top_cover_back__top_cover_back__top_cover_back">
+      <origin xyz="0.0153029414604423 0.0001352630757579338 -0.03423542766005735" rpy="-1.570798682849109 -5.051948426260111e-05 1.789401347096486e-07" />
+      <geometry>
+        <mesh filename="../source/chopped_urdf_v2/meshes/Top_Cover_back__Top_Cover_back__Top_Cover_back__Top_Cover_back.stl" scale="1 1 1" />
+      </geometry>
+      <material name="top_cover_back__top_cover_back__top_cover_back__top_cover_back_color">
+        <color rgba="0.894118 0.894118 0.894118 1" />
+      </material>
+    </visual>
+  </link>
+  <link name="left_wheel">
+    <inertial>
+      <origin xyz="-3.9440755e-07 -1.92833643e-07 -0.0401824131" rpy="0 0 0" />
+      <mass value="1.132605" />
+      <inertia ixx="0.002078043979999999" iyy="0.002078043979999999" izz="0.003581705299999999" ixy="1.4012795548257992e-14" ixz="6.565007579174789e-09" iyz="3.2095020218047514e-09" />
+    </inertial>
+    <visual name="left_wheel_cap__left_wheel_cap">
+      <origin xyz="-0.006968959501660002 -0.01130161151393303 0.1329999129077988" rpy="-3.141592355273698 7.522809566173905e-06 -1.570748461300654" />
+      <geometry>
+        <mesh filename="../source/chopped_urdf_v2/meshes/Left_wheel_cap__Left_wheel_cap.stl" scale="1 1 1" />
+      </geometry>
+      <material name="left_wheel_cap__left_wheel_cap_color">
+        <color rgba="0.301961 0.301961 0.301961 1" />
+      </material>
+    </visual>
+    <visual name="left_wheel_tire__left_wheel_tire">
+      <origin xyz="-0.006968959501660002 -0.01130161151393304 0.1329999129077988" rpy="-3.141592355273698 7.522809566395949e-06 -1.570748461300654" />
+      <geometry>
+        <mesh filename="../source/chopped_urdf_v2/meshes/Left_Wheel_Tire__Left_Wheel_Tire.stl" scale="1 1 1" />
+      </geometry>
+      <material name="left_wheel_tire__left_wheel_tire_color">
+        <color rgba="0.301961 0.301961 0.301961 1" />
+      </material>
+    </visual>
+  </link>
+  <joint name="left" type="continuous">
+    <parent link="base" />
+    <child link="left_wheel" />
+    <origin xyz="9.107328125e-07 0.133 -3.529274425e-07" rpy="-0.7854018353974482 -1.570792573472102 2.356190818192345" />
+    <axis xyz="0 -1.64267615e-43 1" />
+    <limit lower="0.0" upper="0.0" effort="6.5" velocity="50" />
+  </joint>
+  <link name="right_wheel">
+    <inertial>
+      <origin xyz="-8.885807449999999e-12 -1.9662323e-11 -0.0401824131" rpy="0 0 0" />
+      <mass value="1.132605" />
+      <inertia ixx="0.00207804398" iyy="0.00207804398" izz="0.0035817053" ixy="0.0" ixz="0.0" iyz="0.0" />
+    </inertial>
+    <visual name="right_wheel_cap__right_wheel_cap">
+      <origin xyz="-0.006968929399379389 0.01130185042083492 0.1330000571499328" rpy="2.981919634548191e-07 -4.872806047107048e-06 1.570745807304172" />
+      <geometry>
+        <mesh filename="../source/chopped_urdf_v2/meshes/Right_Wheel_Cap__Right_Wheel_Cap.stl" scale="1 1 1" />
+      </geometry>
+      <material name="right_wheel_cap__right_wheel_cap_color">
+        <color rgba="0.301961 0.301961 0.301961 1" />
+      </material>
+    </visual>
+    <visual name="right_wheel_tire__right_wheel_tire">
+      <origin xyz="-0.006968929399379389 0.01130185042083493 0.1330000571499328" rpy="2.981919632327745e-07 -4.872806047551137e-06 1.570745807304172" />
+      <geometry>
+        <mesh filename="../source/chopped_urdf_v2/meshes/Right_Wheel_Tire__Right_Wheel_Tire.stl" scale="1 1 1" />
+      </geometry>
+      <material name="right_wheel_tire__right_wheel_tire_color">
+        <color rgba="0.301961 0.301961 0.301961 1" />
+      </material>
+    </visual>
+  </link>
+  <joint name="right" type="continuous">
+    <parent link="base" />
+    <child link="right_wheel" />
+    <origin xyz="-9.107328125e-07 -0.133 3.529274425e-07" rpy="3.141590306547962 -1.570793672794897 1.570793979836729" />
+    <axis xyz="0 -1.64267476e-43 1" />
+    <limit lower="0.0" upper="0.0" effort="6.5" velocity="50" />
+  </joint>
+  <link name="lj0_link">
+    <inertial>
+      <origin xyz="-0.0576949337 0.000152166603 -0.07930555359999999" rpy="0 0 0" />
+      <mass value="0.750304" />
+      <inertia ixx="0.002228070077906439" iyy="0.002363359427539396" izz="0.0006065248165541684" ixy="3.707406212234381e-05" ixz="-0.00018445340017563062" iyz="1.34448977774335e-05" />
+    </inertial>
+    <visual name="l_shoulder__shoulder">
+      <origin xyz="0.01359775323912151 0.01117044225774486 -1.355228685607598" rpy="-3.141592653581431 5.712447367578477e-06 1.570802934975148" />
+      <geometry>
+        <mesh filename="../source/chopped_urdf_v2/meshes/Shoulder__Shoulder_Mirrored.stl" scale="1 1 1" />
+      </geometry>
+      <material name="l_shoulder__shoulder_color">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <visual name="l_shoulder_cover__shoulder_cover">
+      <origin xyz="0.01359775323912151 0.01117044225774487 -1.355228685607598" rpy="-3.141592653581845 5.712447367578477e-06 1.570802934975148" />
+      <geometry>
+        <mesh filename="../source/chopped_urdf_v2/meshes/Shoulder_Cover__Shoulder_Cover_Mirrored.stl" scale="1 1 1" />
+      </geometry>
+      <material name="l_shoulder_cover__shoulder_cover_color">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+  </link>
+  <joint name="lj0" type="prismatic">
+    <parent link="base" />
+    <child link="lj0_link" />
+    <origin xyz="-1.2696858895e-06 0.0124960835 1.348510790000047" rpy="2.039207194215464e-06 5.307175092506e-06 -1.57080264973832" />
+    <axis xyz="-5.44484836e-21 -6.37318374e-22 1" />
+    <limit lower="-1.03044" upper="0.0" effort="100" velocity="50" />
+  </joint>
+  <link name="lj1_link">
+    <inertial>
+      <origin xyz="0.0238657366 -0.00837618025 -0.0394697702" rpy="0 0 0" />
+      <mass value="0.148651" />
+      <inertia ixx="0.00017468969074603492" iyy="0.00016064358345299745" izz="0.00018640520980096688" ixy="-5.401333300262505e-06" ixz="1.718590226146172e-05" iyz="-3.320286316341562e-05" />
+    </inertial>
+    <visual name="l_shoulder_knuckle__shoulder_knuckle">
+      <origin xyz="0.114118510276851 0.01946179617766031 -1.211836857765694" rpy="-3.141591179685223 2.116939432639242e-07 1.570804347889677" />
+      <geometry>
+        <mesh filename="../source/chopped_urdf_v2/meshes/Shoulder_Knuckle__Shoulder_Knuckle_Mirrored.stl" scale="1 1 1" />
+      </geometry>
+      <material name="l_shoulder_knuckle__shoulder_knuckle_color">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+  </link>
+  <joint name="lj1" type="revolute">
+    <parent link="lj0_link" />
+    <child link="lj1_link" />
+    <origin xyz="-0.1007622 -0.007941402 -0.14467" rpy="-4.864912340282901e-06 -1.303545739128609e-06 1.043757000817781e-06" />
+    <axis xyz="0.9330127513847902 0.2499999333837766 -0.2588189310338228" />
+    <limit lower="-2.094395" upper="2.094395" effort="5" velocity="50" />
+  </joint>
+  <link name="lj2_link">
+    <inertial>
+      <origin xyz="-0.0107095044 0.0400583535 -0.0796809678" rpy="0 0 0" />
+      <mass value="0.650826" />
+      <inertia ixx="0.0021126329170437753" iyy="0.00205443240250118" izz="0.00041743593945504757" ixy="7.5701100348019584e-06" ixz="-4.384819628123413e-05" iyz="0.0002758644525166033" />
+    </inertial>
+    <visual name="l_bicep__bicep">
+      <origin xyz="0.08280389857516662 0.08220296169347169 -1.141510642792634" rpy="-3.138181648003132 -0.01261767458208096 1.567281155396206" />
+      <geometry>
+        <mesh filename="../source/chopped_urdf_v2/meshes/Bicep__Bicep_Mirrored.stl" scale="1 1 1" />
+      </geometry>
+      <material name="l_bicep__bicep_color">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <visual name="l_bicep_cover__bicep_cover">
+      <origin xyz="0.08280389857516658 0.08220296169347169 -1.141510642792634" rpy="-3.138181648003132 -0.01261767458208096 1.567281155396206" />
+      <geometry>
+        <mesh filename="../source/chopped_urdf_v2/meshes/Bicep_Cover__Bicep_Cover_Mirrored.stl" scale="1 1 1" />
+      </geometry>
+      <material name="l_bicep_cover__bicep_cover_color">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+  </link>
+  <joint name="lj2" type="revolute">
+    <parent link="lj1_link" />
+    <child link="lj2_link" />
+    <origin xyz="0.026392489 -0.0492306902 -0.07260424579999999" rpy="-0.01159092400453358 -0.003090560872661907 0.003232534429386918" />
+    <axis xyz="-0.2588189595935746 0.9659258492011141 -7.644498806552383e-08" />
+    <limit lower="-2.094395" upper="2.094395" effort="5" velocity="50" />
+  </joint>
+  <link name="lj3_link">
+    <inertial>
+      <origin xyz="0.0295485184 -0.0480778694 -0.0455667257" rpy="0 0 0" />
+      <mass value="0.199798" />
+      <inertia ixx="0.00032156877669781625" iyy="0.000282419926394665" izz="0.00023945756490751833" ixy="4.323149449264938e-06" ixz="5.055855324899489e-06" iyz="-0.00010431141481656188" />
+    </inertial>
+    <visual name="l_forearm__forearm">
+      <origin xyz="0.1521704643974287 -0.4265184392510892 -0.8838241149761665" rpy="3.117257546262132 0.4589536371182543 1.567094653423187" />
+      <geometry>
+        <mesh filename="../source/chopped_urdf_v2/meshes/Forearm__Forearm_Mirrored.stl" scale="1 1 1" />
+      </geometry>
+      <material name="l_forearm__forearm_color">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <visual name="l_forearm_cover__forearm_cover">
+      <origin xyz="0.1521704643974287 -0.4265184392510892 -0.8838241149761665" rpy="3.117257546262132 0.4589536371182543 1.567094653423187" />
+      <geometry>
+        <mesh filename="../source/chopped_urdf_v2/meshes/Forearm_Cover__Forearm_Cover_Mirrored.stl" scale="1 1 1" />
+      </geometry>
+      <material name="l_forearm_cover__forearm_cover_color">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+  </link>
+  <joint name="lj3" type="revolute">
+    <parent link="lj2_link" />
+    <child link="lj3_link" />
+    <origin xyz="-0.0438706882 0.0612675039 -0.154751" rpy="0.4716151626583209 0.01913456379552581 -4.889506315752801e-05" />
+    <axis xyz="0.9999999999999591 -2.852959999999883e-07 1.978539999999919e-08" />
+    <limit lower="-2.094395" upper="2.094395" effort="5" velocity="50" />
+  </joint>
+  <link name="lj4_link">
+    <inertial>
+      <origin xyz="-0.000163796674 0.000568408015 -0.032266893" rpy="0 0 0" />
+      <mass value="0.125342" />
+      <inertia ixx="7.728918590000005e-05" iyy="7.301105198977054e-05" izz="2.5196731910229537e-05" ixy="-8.467273200028429e-09" ixz="-1.4927586441610745e-07" iyz="-4.65601437357303e-06" />
+    </inertial>
+    <visual name="l_forearm_rotation__forearm_rotation">
+      <origin xyz="0.1222726655235229 -0.02049580311514941 -0.8759930790414467" rpy="3.11914553275076 0.051010714567155 1.56651593128" />
+      <geometry>
+        <mesh filename="../source/chopped_urdf_v2/meshes/Forearm_Rotation__Forearm_Rotation_Mirrored.stl" scale="1 1 1" />
+      </geometry>
+      <material name="l_forearm_rotation__forearm_rotation_color">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+  </link>
+  <joint name="lj4" type="revolute">
+    <parent link="lj3_link" />
+    <child link="lj4_link" />
+    <origin xyz="0.0305826923 -0.06477205279999999 -0.0843053818" rpy="-0.4600357935334899 -7.452713657052357e-05 4.150913772812959e-05" />
+    <axis xyz="-1.97854e-08 7.38402e-08 1" />
+    <limit lower="-2.094395" upper="2.094395" effort="5" velocity="50" />
+  </joint>
+  <link name="lj5_link">
+    <inertial>
+      <origin xyz="-0.000411864738 -0.0169473402 -0.022585011" rpy="0 0 0" />
+      <mass value="0.047169" />
+      <inertia ixx="2.4919668801577202e-05" iyy="2.478919169859237e-05" izz="2.454072029983047e-05" ixy="-1.2795896199230658e-08" ixz="-7.484812818336997e-07" iyz="-7.21387478959628e-07" />
+    </inertial>
+    <visual name="l_wrist_knuckle__wrist_knuckle">
+      <origin xyz="0.1224332190718831 -0.06470582279308214 -0.8203940278424015" rpy="3.109355756402202 0.04515472667193987 1.318708461455557" />
+      <geometry>
+        <mesh filename="../source/chopped_urdf_v2/meshes/Wrist_Knuckle__Wrist_Knuckle_Mirrored.stl" scale="1 1 1" />
+      </geometry>
+      <material name="l_wrist_knuckle__wrist_knuckle_color">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+  </link>
+  <joint name="lj5" type="revolute">
+    <parent link="lj4_link" />
+    <child link="lj5_link" />
+    <origin xyz="-0.00018385403 0.0177248978 -0.0543985991" rpy="4.993938075570359e-11 2.95217709611606e-07 -0.002512080000981637" />
+    <axis xyz="6.55232003e-10 1 -7.38402e-08" />
+    <limit lower="-2.094395" upper="2.094395" effort="5" velocity="50" />
+  </joint>
+  <link name="lj6_link">
+    <inertial>
+      <origin xyz="0.0161742021 0.0010126886 -0.0357884513" rpy="0 0 0" />
+      <mass value="0.234619" />
+      <inertia ixx="0.00017802381845448054" iyy="0.00016798158968574543" izz="0.00011061050785977398" ixy="-7.801802797862992e-07" ixz="-4.017925941854074e-06" iyz="6.374745751115285e-06" />
+    </inertial>
+    <visual name="l_hand__hand">
+      <origin xyz="0.07650845334474014 -0.0130934546842528 -0.7831125381676568" rpy="-3.089799926115193 0.0237131198221614 1.320335258508524" />
+      <geometry>
+        <mesh filename="../source/chopped_urdf_v2/meshes/Hand__Hand_Mirrored.stl" scale="1 1 1" />
+      </geometry>
+      <material name="l_hand__hand_color">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <visual name="l_wrist_cam__wrist_cam">
+      <origin xyz="0.07650845334474016 -0.01309345468425277 -0.7831125381676567" rpy="-3.089799926115193 0.0237131198221614 1.320335258508524" />
+      <geometry>
+        <mesh filename="../source/chopped_urdf_v2/meshes/Wrist_Cam__Wrist_Cam_Mirrored.stl" scale="1 1 1" />
+      </geometry>
+      <material name="l_wrist_cam__wrist_cam_color">
+        <color rgba="0.792157 0.819608 0.933333 1" />
+      </material>
+    </visual>
+    <visual name="l_hand_motor_mount__hand_motor_mount">
+      <origin xyz="0.07650845334473994 -0.01309345468425272 -0.7831125381676567" rpy="-3.089799926115193 0.0237131198221614 1.320335258508524" />
+      <geometry>
+        <mesh filename="../source/chopped_urdf_v2/meshes/Hand_Motor_Mount__Hand_Motor_Mount_Mirrored.stl" scale="1 1 1" />
+      </geometry>
+      <material name="l_hand_motor_mount__hand_motor_mount_color">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <visual name="l_right_finger__right_finger">
+      <origin xyz="0.07670077769250033 -0.01308944200379916 -0.7830112891526789" rpy="-3.089799877979039 0.02371312957163418 1.320335260648975" />
+      <geometry>
+        <mesh filename="../source/chopped_urdf_v2/meshes/Right_Finger__Right_Finger_Mirrored.stl" scale="1 1 1" />
+      </geometry>
+      <material name="l_right_finger__right_finger_color">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <visual name="l_left_finger__left_finger">
+      <origin xyz="0.07545267172846953 -0.01262848587333631 -0.7834570555376509" rpy="-3.08979989583956 0.023713109511734 1.32033525895252" />
+      <geometry>
+        <mesh filename="../source/chopped_urdf_v2/meshes/Left_Finger__Left_Finger_Mirrored.stl" scale="1 1 1" />
+      </geometry>
+      <material name="l_left_finger__left_finger_color">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+  </link>
+  <joint name="lj6" type="revolute">
+    <parent link="lj5_link" />
+    <child link="lj6_link" />
+    <origin xyz="-0.0162467796 -0.01781503 -0.0453221368" rpy="-1.817951780128214e-11 -0.01502369999503417 1.109508410196698e-09" />
+    <axis xyz="1 1.03969997e-16 9.35949733e-17" />
+    <limit lower="-2.094395" upper="2.094395" effort="5" velocity="50" />
+  </joint>
+  <link name="l_finger1">
+    <inertial>
+      <origin xyz="0.00186611555 -0.011529999 -0.0215318206" rpy="0 0 0" />
+      <mass value="0.029906" />
+      <inertia ixx="3.54010211997997e-05" iyy="2.4310510300213926e-05" izz="1.3628209999986427e-05" ixy="-1.6526959065340195e-07" ixz="8.85971286821578e-07" iyz="2.3176544270462598e-07" />
+    </inertial>
+  </link>
+  <joint name="l_finger1_fixed" type="fixed">
+    <parent link="lj6_link" />
+    <child link="l_finger1" />
+    <origin xyz="0.0001108 0.016692953 -0.0536783658" rpy="-0.01711760120005591 4.872128034349998e-09 2.845993006695552e-07" />
+  </joint>
+  <link name="l_finger2">
+    <inertial>
+      <origin xyz="-0.00916223029 -0.0151622295 -0.0516249581" rpy="0 0 0" />
+      <mass value="0.017443" />
+      <inertia ixx="1.4497059500061018e-05" iyy="1.0272979100064565e-05" izz="5.372981669874428e-06" ixy="1.5733638889581734e-07" ixz="-4.51167305679789e-07" iyz="2.6137932098263714e-06" />
+    </inertial>
+  </link>
+  <joint name="l_finger2_fixed" type="fixed">
+    <parent link="lj6_link" />
+    <child link="l_finger2" />
+    <origin xyz="0.0341898 0.0199926095 -0.0537348535" rpy="-0.01711760120005591 4.872129366617628e-09 2.845993006591468e-07" />
+  </joint>
+  <link name="rj0_link">
+    <inertial>
+      <origin xyz="0.0576949963 0.000152166604 -0.07930555340000001" rpy="0 0 0" />
+      <mass value="0.750304" />
+      <inertia ixx="0.002228070087906115" iyy="0.0023633574775394663" izz="0.0006065228625544193" ixy="-3.7073658821802366e-05" ixz="0.00018444916917606177" iyz="1.3444975375978019e-05" />
+    </inertial>
+    <visual name="shoulder__shoulder">
+      <origin xyz="-0.01359715766366856 0.01117042784862607 -1.355228824103676" rpy="3.141587346438155 5.712447367578477e-06 1.5708029349656" />
+      <geometry>
+        <mesh filename="../source/chopped_urdf_v2/meshes/Shoulder__Shoulder.stl" scale="1 1 1" />
+      </geometry>
+      <material name="shoulder__shoulder_color">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <visual name="shoulder_cover__shoulder_cover">
+      <origin xyz="-0.01359715766366856 0.01117042784862607 -1.355228824103676" rpy="3.141587346438155 5.712447367578477e-06 1.5708029349656" />
+      <geometry>
+        <mesh filename="../source/chopped_urdf_v2/meshes/Shoulder_Cover__Shoulder_Cover.stl" scale="1 1 1" />
+      </geometry>
+      <material name="shoulder_cover__shoulder_cover_color">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+  </link>
+  <joint name="rj0" type="prismatic">
+    <parent link="base" />
+    <child link="rj0_link" />
+    <origin xyz="-1.4278550395e-06 -0.0125038358 1.348510790000047" rpy="2.039207194215464e-06 5.307175092506e-06 -1.57080264973832" />
+    <axis xyz="-5.44484836e-21 -6.37318374e-22 1" />
+    <limit lower="-1.03044" upper="0.0" effort="100" velocity="50" />
+  </joint>
+  <link name="rj1_link">
+    <inertial>
+      <origin xyz="-0.0180869968 -0.009785337240000001 -0.0369365583" rpy="0 0 0" />
+      <mass value="0.148651" />
+      <inertia ixx="0.00017471140103779764" iyy="0.00016089545691978156" izz="0.00018613249604242115" ixy="5.508007510268391e-06" ixz="-1.7144015578755873e-05" iyz="-3.330531055400598e-05" />
+    </inertial>
+    <visual name="shoulder_knuckle__shoulder_knuckle">
+      <origin xyz="-0.1080334219778785 0.01784024615265639 -1.210221938958841" rpy="3.141587222693432 5.250681113899702e-06 1.57080012423838" />
+      <geometry>
+        <mesh filename="../source/chopped_urdf_v2/meshes/Shoulder_Knuckle__Shoulder_Knuckle.stl" scale="1 1 1" />
+      </geometry>
+      <material name="shoulder_knuckle__shoulder_knuckle_color">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+  </link>
+  <joint name="rj1" type="revolute">
+    <parent link="rj0_link" />
+    <child link="rj1_link" />
+    <origin xyz="0.0946761 -0.006325812 -0.146285" rpy="1.740766689425416e-07 -4.664335429005462e-08 3.540679299402365e-07" />
+    <axis xyz="0.9330127513847902 -0.2499999333837766 0.2588189310338228" />
+    <limit lower="-2.094395" upper="2.094395" effort="5" velocity="50" />
+  </joint>
+  <link name="rj2_link">
+    <inertial>
+      <origin xyz="0.008065958729999999 0.0340374054 -0.0796053432" rpy="0 0 0" />
+      <mass value="0.650826" />
+      <inertia ixx="0.0021134628038182316" iyy="0.002052672462759909" izz="0.0004183857634218577" ixy="-4.37630926172962e-06" ixz="2.3207886545798538e-05" iyz="0.00028127104346489123" />
+    </inertial>
+    <visual name="bicep__bicep">
+      <origin xyz="-0.08550009835166184 0.07173173461497899 -1.141559314783966" rpy="3.139164833984469 -0.009011749030361615 1.573312221350025" />
+      <geometry>
+        <mesh filename="../source/chopped_urdf_v2/meshes/Bicep__Bicep.stl" scale="1 1 1" />
+      </geometry>
+      <material name="bicep__bicep_color">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <visual name="bicep_cover__bicep_cover">
+      <origin xyz="-0.08550009835166178 0.07173173461497899 -1.141559314783966" rpy="3.139164833984469 -0.009011749030361615 1.573312221350025" />
+      <geometry>
+        <mesh filename="../source/chopped_urdf_v2/meshes/Bicep_Cover__Bicep_Cover.stl" scale="1 1 1" />
+      </geometry>
+      <material name="bicep_cover__bicep_cover_color">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+  </link>
+  <joint name="rj2" type="revolute">
+    <parent link="rj1_link" />
+    <child link="rj2_link" />
+    <origin xyz="-0.0186317207 -0.0444170084 -0.0712032303" rpy="-0.007984475571661945 0.002124062742611565 -0.002222614577716851" />
+    <axis xyz="0.2588189595935746 0.9659258492011141 -7.644498806552383e-08" />
+    <limit lower="-2.094395" upper="2.094395" effort="5" velocity="50" />
+  </joint>
+  <link name="rj3_link">
+    <inertial>
+      <origin xyz="-0.0232043126 0.0477128382 0.047324596" rpy="0 0 0" />
+      <mass value="0.199798" />
+      <inertia ixx="0.0003228332292122832" iyy="0.0002839485768422245" izz="0.00023077117294549262" ixy="4.260777059529064e-06" ixz="5.113313300268659e-06" iyz="-9.61114163213663e-05" />
+    </inertial>
+    <visual name="forearm__forearm">
+      <origin xyz="-0.1331589474701987 0.4341670001038695 0.88176210457381" rpy="0.01305374487471422 -0.4657901292578901 -1.573636196790714" />
+      <geometry>
+        <mesh filename="../source/chopped_urdf_v2/meshes/Forearm__Forearm.stl" scale="1 1 1" />
+      </geometry>
+      <material name="forearm__forearm_color">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <visual name="forearm_cover__forearm_cover">
+      <origin xyz="-0.1331589474701987 0.4341670001038697 0.88176210457381" rpy="0.01305374487471433 -0.4657901292578901 -1.573636196790714" />
+      <geometry>
+        <mesh filename="../source/chopped_urdf_v2/meshes/Forearm_Cover__Forearm_Cover.stl" scale="1 1 1" />
+      </geometry>
+      <material name="forearm_cover__forearm_cover_color">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+  </link>
+  <joint name="rj3" type="revolute">
+    <parent link="rj2_link" />
+    <child link="rj3_link" />
+    <origin xyz="0.0338331345 0.0554308484 -0.154998312" rpy="-2.666795149680628 -0.007254393881487076 7.425556075801865e-06" />
+    <axis xyz="0.9999999999999591 2.852959999999883e-07 -1.978539999999919e-08" />
+    <limit lower="-2.094395" upper="2.094395" effort="5" velocity="50" />
+  </joint>
+  <link name="rj4_link">
+    <inertial>
+      <origin xyz="-0.000162509875 -0.000568511852 -0.0322668855" rpy="0 0 0" />
+      <mass value="0.125342" />
+      <inertia ixx="7.72891166e-05" iyy="7.301113415671274e-05" izz="2.519673454328726e-05" ixy="1.9688478145758397e-08" ixz="-1.6219914252418175e-07" iyz="4.744905879585218e-06" />
+    </inertial>
+    <visual name="forearm_rotation__forearm_rotation">
+      <origin xyz="0.109712542962093 0.02191672905379333 -0.8774948968922709" rpy="-3.13007499688877 0.05139657960059241 -1.567877624783261" />
+      <geometry>
+        <mesh filename="../source/chopped_urdf_v2/meshes/Forearm_Rotation__Forearm_Rotation.stl" scale="1 1 1" />
+      </geometry>
+      <material name="forearm_rotation__forearm_rotation_color">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+  </link>
+  <joint name="rj4" type="revolute">
+    <parent link="rj3_link" />
+    <child link="rj4_link" />
+    <origin xyz="-0.0241830096 0.06531466480000001 0.083885323" rpy="-2.675100059789374 7.955917056357009e-05 -3.141560619999972" />
+    <axis xyz="1.97854e-08 7.38402e-08 1" />
+    <limit lower="-2.094395" upper="2.094395" effort="5" velocity="50" />
+  </joint>
+  <link name="rj5_link">
+    <inertial>
+      <origin xyz="-0.0225812898 -0.0169474163 -0.0005587814350000001" rpy="0 0 0" />
+      <mass value="0.047169" />
+      <inertia ixx="2.4648973700054e-05" iyy="2.4789098502839463e-05" izz="2.48113538971066e-05" ixy="-7.673887169569967e-07" ixz="-7.583871750675834e-07" iyz="-6.032615529541167e-08" />
+    </inertial>
+    <visual name="wrist_knuckle__wrist_knuckle">
+      <origin xyz="-0.8218843952804675 -0.06587658161304957 0.1100374204411456" rpy="-1.561266876974406 -0.247940701542912 1.6205510571234" />
+      <geometry>
+        <mesh filename="../source/chopped_urdf_v2/meshes/Wrist_Knuckle__Wrist_Knuckle.stl" scale="1 1 1" />
+      </geometry>
+      <material name="wrist_knuckle__wrist_knuckle_color">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+  </link>
+  <joint name="rj5" type="revolute">
+    <parent link="rj4_link" />
+    <child link="rj5_link" />
+    <origin xyz="-0.000138374553 -0.0177249878 -0.0543985888" rpy="-3.136518066937959 -1.570793000553884 -1.933058163094969e-06" />
+    <axis xyz="-6.55231978e-10 1 -7.38402e-08" />
+    <limit lower="-2.094395" upper="2.094395" effort="5" velocity="50" />
+  </joint>
+  <link name="rj6_link">
+    <inertial>
+      <origin xyz="-0.0161738446 0.0357480862 0.00197802306" rpy="0 0 0" />
+      <mass value="0.234619" />
+      <inertia ixx="0.00017802370639756257" iyy="0.00011912623674184441" izz="0.00015946617686059296" ixy="-3.900913764974814e-06" ixz="5.403379411193039e-07" iyz="-7.897197328332411e-06" />
+    </inertial>
+    <visual name="hand__hand">
+      <origin xyz="-0.06928357198778949 0.7835546690210934 -0.01443367272110907" rpy="1.61415203924272 -1.322554657757838 3.039109016074" />
+      <geometry>
+        <mesh filename="../source/chopped_urdf_v2/meshes/Hand__Hand.stl" scale="1 1 1" />
+      </geometry>
+      <material name="hand__hand_color">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <visual name="hand_motor_mount__hand_motor_mount">
+      <origin xyz="-0.0692835719877893 0.7835546690210934 -0.01443367272110901" rpy="1.614152039242719 -1.322554657757838 3.039109016074001" />
+      <geometry>
+        <mesh filename="../source/chopped_urdf_v2/meshes/Hand_Motor_Mount__Hand_Motor_Mount.stl" scale="1 1 1" />
+      </geometry>
+      <material name="hand_motor_mount__hand_motor_mount_color">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <visual name="left_finger__left_finger">
+      <origin xyz="-0.0682247134657937 0.7838946571200792 -0.01397238131415453" rpy="1.61415196861865 -1.322554659177897 3.039109057712371" />
+      <geometry>
+        <mesh filename="../source/chopped_urdf_v2/meshes/Left_Finger__Left_Finger.stl" scale="1 1 1" />
+      </geometry>
+      <material name="left_finger__left_finger_color">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <visual name="right_finger__right_finger">
+      <origin xyz="-0.06947632878763987 0.7834542753629703 -0.01442897710197168" rpy="1.61415203021465 -1.322554658970591 3.039108975774774" />
+      <geometry>
+        <mesh filename="../source/chopped_urdf_v2/meshes/Right_Finger__Right_Finger.stl" scale="1 1 1" />
+      </geometry>
+      <material name="right_finger__right_finger_color">
+        <color rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <visual name="wrist_cam__wrist_cam">
+      <origin xyz="-0.06928357198778951 0.7835546690210934 -0.01443367272110906" rpy="1.614152039242719 -1.322554657757838 3.039109016074001" />
+      <geometry>
+        <mesh filename="../source/chopped_urdf_v2/meshes/Wrist_Cam__Wrist_Cam.stl" scale="1 1 1" />
+      </geometry>
+      <material name="wrist_cam__wrist_cam_color">
+        <color rgba="0.792157 0.819608 0.933333 1" />
+      </material>
+    </visual>
+  </link>
+  <joint name="rj6" type="revolute">
+    <parent link="rj5_link" />
+    <child link="rj6_link" />
+    <origin xyz="-0.0452153111 -0.0178151228 -0.0165401029" rpy="1.570873467816275 1.562249999762902 -3.141511831534809" />
+    <axis xyz="1 -1.01382942e-16 -8.2767569e-17" />
+    <limit lower="-2.094395" upper="2.094395" effort="5" velocity="50" />
+  </joint>
+  <link name="r_finger1">
+    <inertial>
+      <origin xyz="-0.00184372821 -0.0115300024 -0.0216017772" rpy="0 0 0" />
+      <mass value="0.029906" />
+      <inertia ixx="3.540734799977166e-05" iyy="2.432319310025762e-05" izz="1.3634567299970682e-05" ixy="1.731069853659379e-07" ixz="-9.505012667921765e-07" iyz="2.2554485237045893e-07" />
+    </inertial>
+  </link>
+  <joint name="r_finger1_fixed" type="fixed">
+    <parent link="rj6_link" />
+    <child link="r_finger1" />
+    <origin xyz="-0.00011 0.0532083019 0.0181353097" rpy="1.580670000112349 2.845704856202502e-07 8.546764296291087e-09" />
+  </joint>
+  <link name="r_finger2">
+    <inertial>
+      <origin xyz="0.00449482473 -0.0159012929 -0.0349207803" rpy="0 0 0" />
+      <mass value="0.017443" />
+      <inertia ixx="2.1929408000294282e-05" iyy="1.6477746200084475e-05" izz="7.23009335962122e-06" ixy="-1.3878713642851876e-07" ixz="1.1306026275265897e-06" iyz="1.595516088984122e-06" />
+    </inertial>
+  </link>
+  <joint name="r_finger2_fixed" type="fixed">
+    <parent link="rj6_link" />
+    <child link="r_finger2" />
+    <origin xyz="-0.034189 0.0531757179 0.0214352888" rpy="1.580670000112349 2.845704845100272e-07 8.546759633354384e-09" />
+  </joint>
+</robot>

@@ -1,0 +1,20 @@
+{
+  "kind": "residual",
+  "arch": "lstm",
+  "hid": 64,
+  "layers": 1,
+  "history": 20,
+  "seq": 96,
+  "pos_scale": 0.2688172161579132,
+  "vel_scale": 0.023460423573851585,
+  "torque_scale": 1.0,
+  "i_wheel": 0.01008,
+  "frictionloss": 0.311,
+  "viscous": 0.0023,
+  "dc_sat": 8.0,
+  "dc_vlim": 44.0,
+  "dc_elim": 6.5,
+  "w_eps": 0.15,
+  "sign": 1.0,
+  "source_weights_sha256": "e67247fc6da98be6fc5867936cadb22db092dd182ee383d72d73d3b045bf6ec8"
+}

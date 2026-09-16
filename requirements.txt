@@ -1,0 +1,8 @@
+mujoco==3.8.1
+numpy==2.5.3
+scipy==1.18.1
+onnxruntime==1.30.0
+onnx==1.22.0
+trimesh==4.12.2
+pillow==12.3.0
+pytest==9.1.1

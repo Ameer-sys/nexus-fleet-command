@@ -1,0 +1,20 @@
+{
+  "arms": {
+    "source": "/tmp/bb-sim-training-reference/deploy_history5049_0152_20260908/stage/models/arms_motion_history_5049.onnx",
+    "sha256": "f058a96e3563048c3d7b27eb448811d4c1214311bc03056566d08dfed7d5dc38",
+    "upstream_source": "bracketbot@100.73.185.62:/home/bracketbot/bb_RL/deploy_history5049_0152_20260908/stage/models/arms_motion_history_5049.onnx"
+  },
+  "terrain": {
+    "source": "/tmp/bb-sim-training-reference/deploy_history5049_0152_20260908/stage/models/balancing_terrain.onnx",
+    "sha256": "ea9bc8ec6c94b34d9eade03e2435f47bf515ed19857555e961f5668f8c475165",
+    "upstream_source": "bracketbot@100.73.185.62:/home/bracketbot/bb_RL/deploy_history5049_0152_20260908/stage/models/balancing_terrain.onnx"
+  },
+  "lean": {
+    "source": "/Users/jliu/Documents/Github/bb-bedrock/bb-firmware/stm/balance/gen/policy_weights_lean.h",
+    "source_header_sha256": "dac4aad5758902c908bd53972947e0df670f1a0083a5bf398e16970be014eb8d",
+    "original_onnx_sha256": "198609acb21b137d0f5f74e92f1a951c82346da25a250d6199ad8204399c27ba",
+    "sha256": "395e1cca3762d63bd8b7064bce25d4906bfee2ede91b9d1e1bb1f79fa3486a96",
+    "note": "Original ONNX unavailable in training checkout. Reconstructed identical float32 weights and Beta mean from deployed LEAN_V3E C header; graph bytes differ.",
+    "archived_header": "assets/reference/lean_policy_export.h"
+  }
+}

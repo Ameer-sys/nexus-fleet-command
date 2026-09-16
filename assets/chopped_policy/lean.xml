@@ -1,0 +1,192 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mujoco model="chopped_urdf_v2_training_dynamics">
+  <compiler angle="radian" meshdir="../source/chopped_urdf_v2/meshes/" />
+  <option timestep="0.005" integrator="implicitfast" iterations="10" ls_iterations="20" />
+  <asset>
+    <mesh name="Base_Extrusion__Base_Extrusion" file="Base_Extrusion__Base_Extrusion.stl" />
+    <mesh name="Base_Extrusion__Base_Extrusion__Base_Extrusion__Base_Extrusion" file="Base_Extrusion__Base_Extrusion__Base_Extrusion__Base_Extrusion.stl" />
+    <mesh name="Base_Plate__Base_Plate" file="Base_Plate__Base_Plate.stl" />
+    <mesh name="Base_Print__Base_Print" file="Base_Print__Base_Print.stl" />
+    <mesh name="Battery_Terminal__Battery_Terminal" file="Battery_Terminal__Battery_Terminal.stl" />
+    <mesh name="Bottom_Cover_Back__Bottom_Cover_Back__Bottom_Cover_Back__Bottom_Cover_Back" file="Bottom_Cover_Back__Bottom_Cover_Back__Bottom_Cover_Back__Bottom_Cover_Back.stl" />
+    <mesh name="Bottom_Cover_Front__Bottom_Cover_Front__Bottom_Cover_Front__Bottom_Cover_Front" file="Bottom_Cover_Front__Bottom_Cover_Front__Bottom_Cover_Front__Bottom_Cover_Front.stl" />
+    <mesh name="Camera_Cover__Camera_Cover__Camera_Cover__Camera_Cover" file="Camera_Cover__Camera_Cover__Camera_Cover__Camera_Cover.stl" />
+    <mesh name="Cover_MiddleBot_Back__Cover_MiddleBot_Back__Cover_MiddleBot_Back__Cover_MiddleBot_Back" file="Cover_MiddleBot_Back__Cover_MiddleBot_Back__Cover_MiddleBot_Back__Cover_MiddleBot_Back.stl" />
+    <mesh name="Cover_MiddleBot_Front__Cover_MiddleBot_Front__Cover_MiddleBot_Front__Cover_MiddleBot_Front" file="Cover_MiddleBot_Front__Cover_MiddleBot_Front__Cover_MiddleBot_Front__Cover_MiddleBot_Front.stl" />
+    <mesh name="Cover_MiddleTop_Back__Cover_MiddleTop_Back__Cover_MiddleTop_Back__Cover_MiddleTop_Back" file="Cover_MiddleTop_Back__Cover_MiddleTop_Back__Cover_MiddleTop_Back__Cover_MiddleTop_Back.stl" />
+    <mesh name="Cover_MiddleTop_Front__Cover_MiddleTop_Front__Cover_MiddleTop_Front__Cover_MiddleTop_Front" file="Cover_MiddleTop_Front__Cover_MiddleTop_Front__Cover_MiddleTop_Front__Cover_MiddleTop_Front.stl" />
+    <mesh name="Cover_Top_Front__Cover_Top_Front__Cover_Top_Front__Cover_Top_Front" file="Cover_Top_Front__Cover_Top_Front__Cover_Top_Front__Cover_Top_Front.stl" />
+    <mesh name="Head__Head__Head__Head" file="Head__Head__Head__Head.stl" />
+    <mesh name="Head_Cover__Head_Cover__Head_Cover__Head_Cover" file="Head_Cover__Head_Cover__Head_Cover__Head_Cover.stl" />
+    <mesh name="Main_Extrusion__Main_Extrusion__Main_Extrusion__Main_Extrusion" file="Main_Extrusion__Main_Extrusion__Main_Extrusion__Main_Extrusion.stl" />
+    <mesh name="Mirror30__Mirror30" file="Mirror30__Mirror30.stl" />
+    <mesh name="Top_Cover_back__Top_Cover_back__Top_Cover_back__Top_Cover_back" file="Top_Cover_back__Top_Cover_back__Top_Cover_back__Top_Cover_back.stl" />
+    <mesh name="Left_wheel_cap__Left_wheel_cap" file="Left_wheel_cap__Left_wheel_cap.stl" />
+    <mesh name="Left_Wheel_Tire__Left_Wheel_Tire" file="Left_Wheel_Tire__Left_Wheel_Tire.stl" />
+    <mesh name="Right_Wheel_Cap__Right_Wheel_Cap" file="Right_Wheel_Cap__Right_Wheel_Cap.stl" />
+    <mesh name="Right_Wheel_Tire__Right_Wheel_Tire" file="Right_Wheel_Tire__Right_Wheel_Tire.stl" />
+    <mesh name="Shoulder__Shoulder_Mirrored" file="Shoulder__Shoulder_Mirrored.stl" />
+    <mesh name="Shoulder_Cover__Shoulder_Cover_Mirrored" file="Shoulder_Cover__Shoulder_Cover_Mirrored.stl" />
+    <mesh name="Shoulder_Knuckle__Shoulder_Knuckle_Mirrored" file="Shoulder_Knuckle__Shoulder_Knuckle_Mirrored.stl" />
+    <mesh name="Bicep__Bicep_Mirrored" file="Bicep__Bicep_Mirrored.stl" />
+    <mesh name="Bicep_Cover__Bicep_Cover_Mirrored" file="Bicep_Cover__Bicep_Cover_Mirrored.stl" />
+    <mesh name="Forearm__Forearm_Mirrored" file="Forearm__Forearm_Mirrored.stl" />
+    <mesh name="Forearm_Cover__Forearm_Cover_Mirrored" file="Forearm_Cover__Forearm_Cover_Mirrored.stl" />
+    <mesh name="Forearm_Rotation__Forearm_Rotation_Mirrored" file="Forearm_Rotation__Forearm_Rotation_Mirrored.stl" />
+    <mesh name="Wrist_Knuckle__Wrist_Knuckle_Mirrored" file="Wrist_Knuckle__Wrist_Knuckle_Mirrored.stl" />
+    <mesh name="Hand__Hand_Mirrored" file="Hand__Hand_Mirrored.stl" />
+    <mesh name="Wrist_Cam__Wrist_Cam_Mirrored" file="Wrist_Cam__Wrist_Cam_Mirrored.stl" />
+    <mesh name="Hand_Motor_Mount__Hand_Motor_Mount_Mirrored" file="Hand_Motor_Mount__Hand_Motor_Mount_Mirrored.stl" />
+    <mesh name="Right_Finger__Right_Finger_Mirrored" file="Right_Finger__Right_Finger_Mirrored.stl" />
+    <mesh name="Left_Finger__Left_Finger_Mirrored" file="Left_Finger__Left_Finger_Mirrored.stl" />
+    <mesh name="Shoulder__Shoulder" file="Shoulder__Shoulder.stl" />
+    <mesh name="Shoulder_Cover__Shoulder_Cover" file="Shoulder_Cover__Shoulder_Cover.stl" />
+    <mesh name="Shoulder_Knuckle__Shoulder_Knuckle" file="Shoulder_Knuckle__Shoulder_Knuckle.stl" />
+    <mesh name="Bicep__Bicep" file="Bicep__Bicep.stl" />
+    <mesh name="Bicep_Cover__Bicep_Cover" file="Bicep_Cover__Bicep_Cover.stl" />
+    <mesh name="Forearm__Forearm" file="Forearm__Forearm.stl" />
+    <mesh name="Forearm_Cover__Forearm_Cover" file="Forearm_Cover__Forearm_Cover.stl" />
+    <mesh name="Forearm_Rotation__Forearm_Rotation" file="Forearm_Rotation__Forearm_Rotation.stl" />
+    <mesh name="Wrist_Knuckle__Wrist_Knuckle" file="Wrist_Knuckle__Wrist_Knuckle.stl" />
+    <mesh name="Hand__Hand" file="Hand__Hand.stl" />
+    <mesh name="Hand_Motor_Mount__Hand_Motor_Mount" file="Hand_Motor_Mount__Hand_Motor_Mount.stl" />
+    <mesh name="Left_Finger__Left_Finger" file="Left_Finger__Left_Finger.stl" />
+    <mesh name="Right_Finger__Right_Finger" file="Right_Finger__Right_Finger.stl" />
+    <mesh name="Wrist_Cam__Wrist_Cam" file="Wrist_Cam__Wrist_Cam.stl" />
+    <texture name="sky" type="skybox" builtin="gradient" rgb1=".35 .45 .60" rgb2=".08 .10 .15" width="512" height="3072" />
+    <texture name="ground_pattern" type="2d" builtin="checker" rgb1=".25 .28 .31" rgb2=".32 .35 .38" width="512" height="512" />
+    <material name="ground_material" texture="ground_pattern" texrepeat="2 2" texuniform="true" reflectance=".08" />
+  </asset>
+  <worldbody>
+    <geom name="floor" size="0 0 0.05" type="plane" rgba="1 1 1 1" material="ground_material" />
+    <light pos="2 -2 4" dir="-0.348155 0.348155 -0.870388" diffuse="0.8 0.8 0.8" />
+    <light pos="-2 2 3" dir="0.276172 -0.276172 -0.920575" diffuse="0.4 0.4 0.4" />
+    <body name="base" pos="0 0 0" quat="1 0 0 0">
+      <inertial pos="-0.0068050715699995 -0.00142723121 0.3438652180000475" quat="0.9999451773761144 -0.0009241706614712593 0.007280489156575639 0.007468776906607968" mass="6.931796" diaginertia="1.674992610507978 1.643489108757349 0.04427040683467433" />
+      <joint name="floating_base" type="free" />
+      <geom name="base_extrusion__base_extrusion" pos="0.0113016 -1.43984e-08 -0.00696893" quat="0.707106 -0.707108 -1.79246e-05 -1.77981e-05" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.792157 0.819608 0.933333 1" mesh="Base_Extrusion__Base_Extrusion" />
+      <geom name="base_extrusion__base_extrusion__base_extrusion__base_extrusion" pos="0.0113016 -1.43984e-08 -0.00696893" quat="0.707106 -0.707108 -1.79246e-05 -1.77981e-05" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.8 0.8 0.8 1" mesh="Base_Extrusion__Base_Extrusion__Base_Extrusion__Base_Extrusion" />
+      <geom name="base_plate__base_plate" pos="0.0113016 -1.43984e-08 -0.00696893" quat="0.707106 -0.707108 -1.79246e-05 -1.77981e-05" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="1 1 1 1" mesh="Base_Plate__Base_Plate" />
+      <geom name="base_print__base_print" pos="0.0113016 -1.43984e-08 -0.00696893" quat="0.707106 -0.707108 -1.79246e-05 -1.77981e-05" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="1 1 1 1" mesh="Base_Print__Base_Print" />
+      <geom name="battery_terminal__battery_terminal" pos="0.0113016 -1.43984e-08 -0.00696893" quat="0.707106 -0.707108 -1.79246e-05 -1.77981e-05" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="1 0.756863 0.054902 1" mesh="Battery_Terminal__Battery_Terminal" />
+      <geom name="bottom_cover_back__bottom_cover_back__bottom_cover_back__bottom_cover_back" pos="0.0153029 0.000135263 -0.0342354" quat="0.707106 -0.707108 -1.79246e-05 -1.77981e-05" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="1 1 1 1" mesh="Bottom_Cover_Back__Bottom_Cover_Back__Bottom_Cover_Back__Bottom_Cover_Back" />
+      <geom name="bottom_cover_front__bottom_cover_front__bottom_cover_front__bottom_cover_front" pos="0.0153029 0.000135263 -0.0342354" quat="0.707106 -0.707108 -1.79246e-05 -1.77981e-05" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="1 1 1 1" mesh="Bottom_Cover_Front__Bottom_Cover_Front__Bottom_Cover_Front__Bottom_Cover_Front" />
+      <geom name="camera_cover__camera_cover__camera_cover__camera_cover" pos="0.0113016 -1.43984e-08 -0.00696893" quat="0.707106 -0.707108 -1.79246e-05 -1.77981e-05" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.25098 0.25098 0.25098 1" mesh="Camera_Cover__Camera_Cover__Camera_Cover__Camera_Cover" />
+      <geom name="cover_middlebot_back__cover_middlebot_back__cover_middlebot_back__cover_middlebot_back" pos="0.0153029 0.000135263 -0.0342354" quat="0.707106 -0.707108 -1.79246e-05 -1.77981e-05" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.894118 0.894118 0.894118 1" mesh="Cover_MiddleBot_Back__Cover_MiddleBot_Back__Cover_MiddleBot_Back__Cover_MiddleBot_Back" />
+      <geom name="cover_middlebot_front__cover_middlebot_front__cover_middlebot_front__cover_middlebot_front" pos="0.0153029 0.000135263 -0.0342354" quat="0.707106 -0.707108 -1.79246e-05 -1.77981e-05" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.894118 0.894118 0.894118 1" mesh="Cover_MiddleBot_Front__Cover_MiddleBot_Front__Cover_MiddleBot_Front__Cover_MiddleBot_Front" />
+      <geom name="cover_middletop_back__cover_middletop_back__cover_middletop_back__cover_middletop_back" pos="0.0153029 0.000135263 -0.0342354" quat="0.707106 -0.707108 -1.79246e-05 -1.77981e-05" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.894118 0.894118 0.894118 1" mesh="Cover_MiddleTop_Back__Cover_MiddleTop_Back__Cover_MiddleTop_Back__Cover_MiddleTop_Back" />
+      <geom name="cover_middletop_front__cover_middletop_front__cover_middletop_front__cover_middletop_front" pos="0.0153029 0.000135263 -0.0342354" quat="0.707106 -0.707108 -1.79246e-05 -1.77981e-05" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.894118 0.894118 0.894118 1" mesh="Cover_MiddleTop_Front__Cover_MiddleTop_Front__Cover_MiddleTop_Front__Cover_MiddleTop_Front" />
+      <geom name="cover_top_front__cover_top_front__cover_top_front__cover_top_front" pos="0.0153029 0.000135263 -0.0342354" quat="0.707106 -0.707108 -1.79246e-05 -1.77981e-05" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.894118 0.894118 0.894118 1" mesh="Cover_Top_Front__Cover_Top_Front__Cover_Top_Front__Cover_Top_Front" />
+      <geom name="head__head__head__head" pos="0.0113016 -1.43984e-08 -0.00696893" quat="0.707106 -0.707108 -1.79246e-05 -1.77981e-05" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.894118 0.894118 0.894118 1" mesh="Head__Head__Head__Head" />
+      <geom name="head_cover__head_cover__head_cover__head_cover" pos="0.0113016 -1.43984e-08 -0.00696893" quat="0.707106 -0.707108 -1.79246e-05 -1.77981e-05" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.894118 0.894118 0.894118 1" mesh="Head_Cover__Head_Cover__Head_Cover__Head_Cover" />
+      <geom name="main_extrusion__main_extrusion__main_extrusion__main_extrusion" pos="0.0113016 -1.43984e-08 -0.00696893" quat="0.707106 -0.707108 -1.79246e-05 -1.77981e-05" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.301961 0.301961 0.301961 1" mesh="Main_Extrusion__Main_Extrusion__Main_Extrusion__Main_Extrusion" />
+      <geom name="mirror30__mirror30" pos="0.0113016 -1.43984e-08 -0.00696893" quat="0.707106 -0.707108 -1.79246e-05 -1.77981e-05" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="1 1 1 1" mesh="Mirror30__Mirror30" />
+      <geom name="top_cover_back__top_cover_back__top_cover_back__top_cover_back" pos="0.0153029 0.000135263 -0.0342354" quat="0.707106 -0.707108 -1.79246e-05 -1.77981e-05" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.894118 0.894118 0.894118 1" mesh="Top_Cover_back__Top_Cover_back__Top_Cover_back__Top_Cover_back" />
+      <geom name="chest" size="0.01 0.0382 0.32" pos="0.0334 0 0.8217" type="box" contype="2" conaffinity="2" group="3" rgba="0.8 0.2 0.2 0" />
+      <site name="imu" pos="0 0 0" size="0.01" />
+      <body name="left_wheel" pos="9.107328125e-07 0.133 -3.529274425e-07" quat="0.5000018359957487 0.4999968369957487 -0.5000018359957487 0.4999994909957486">
+        <inertial pos="-3.9440755e-07 -1.92833643e-07 -0.0401824131" quat="0.5000016251155746 0.5000005578888751 -0.4999983748791448 0.4999994421105038" mass="1.132605" diaginertia="0.003581705300035513 0.002078043979971336 0.002078043979993149" />
+        <joint name="left" pos="0 0 0" axis="0 -1.64267615e-43 1" actuatorfrcrange="-6.5 6.5" armature="0.00638" damping="0.00273" frictionloss="0.328" />
+        <geom name="left_wheel_cap__left_wheel_cap" pos="-0.00696896 -0.0113016 0.133" quat="2.76512e-06 -0.707124 0.70709 2.55431e-06" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.301961 0.301961 0.301961 1" mesh="Left_wheel_cap__Left_wheel_cap" />
+        <geom name="left_wheel_tire__left_wheel_tire" pos="-0.00696896 -0.0113016 0.133" quat="2.76512e-06 -0.707124 0.70709 2.55431e-06" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.301961 0.301961 0.301961 1" mesh="Left_Wheel_Tire__Left_Wheel_Tire" />
+        <geom name="left_wheel_col" size="0.0846 0.025" pos="-7.65934184025138e-07 -4.851300651778653e-07 -0.02792992357454152" type="cylinder" group="3" rgba="0.2 0.2 0.2 0" />
+      </body>
+      <body name="right_wheel" pos="-9.107328125e-07 -0.133 3.529274425e-07" quat="-0.4999981629981827 0.5000018369981827 0.4999994899981827 0.5000005099981827">
+        <inertial pos="-8.885807449999999e-12 -1.9662323e-11 -0.0401824131" quat="0.5000000000000007 0.5000000000000007 -0.5000000000000007 0.5000000000000007" mass="1.132605" diaginertia="0.0035817053 0.00207804398 0.00207804398" />
+        <joint name="right" pos="0 0 0" axis="0 -1.64267476e-43 1" actuatorfrcrange="-6.5 6.5" armature="0.0065" damping="0.0023" frictionloss="0.311" />
+        <geom name="right_wheel_cap__right_wheel_cap" pos="-0.00696893 0.0113019 0.133" quat="0.707125 1.82818e-06 -1.61742e-06 0.707089" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.301961 0.301961 0.301961 1" mesh="Right_Wheel_Cap__Right_Wheel_Cap" />
+        <geom name="right_wheel_tire__right_wheel_tire" pos="-0.00696893 0.0113019 0.133" quat="0.707125 1.82818e-06 -1.61742e-06 0.707089" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.301961 0.301961 0.301961 1" mesh="Right_Wheel_Tire__Right_Wheel_Tire" />
+        <geom name="right_wheel_col" size="0.0846 0.025" pos="-5.171220325380059e-07 -1.195664943032925e-07 -0.02792992357800139" type="cylinder" group="3" rgba="0.2 0.2 0.2 0" />
+      </body>
+      <body name="lj0_link" pos="-1.2696858895e-06 0.0124960835 1.348510790000047" quat="0.7071045456801577 2.597342018825153e-06 1.155392919477385e-06 -0.7071090166801557">
+        <inertial pos="-0.0576949337 0.000152166603 -0.07930555359999999" quat="0.7965729653456363 0.03769381534131989 0.0417035249112668 0.6019231704922575" mass="0.750304" diaginertia="0.002373542624644454 0.002238776388983803 0.0005856353083717461" />
+        <geom name="l_shoulder__shoulder" pos="0.0135978 0.0111704 -1.35523" quat="-2.01966e-06 -0.707104 -0.707109 2.01965e-06" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="1 1 1 1" mesh="Shoulder__Shoulder_Mirrored" />
+        <geom name="l_shoulder_cover__shoulder_cover" pos="0.0135978 0.0111704 -1.35523" quat="-2.01966e-06 -0.707104 -0.707109 2.01965e-06" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="1 1 1 1" mesh="Shoulder_Cover__Shoulder_Cover_Mirrored" />
+        <body name="lj1_link" pos="-0.1007622 -0.007941402 -0.14467" quat="0.9999999999966931 -2.432455829991956e-06 -6.517741389978447e-07 5.218769149982742e-07">
+          <inertial pos="0.0238657366 -0.00837618025 -0.0394697702" quat="0.3354393467035477 0.7615739626929117 -0.4627666668234807 0.305503774294853" mass="0.148651" diaginertia="0.0002163301267558831 0.0001683217110685711 0.0001370866461755453" />
+          <geom name="l_shoulder_knuckle__shoulder_knuckle" pos="0.114119 0.0194618 -1.21184" quat="4.46256e-07 -0.707104 -0.70711 5.95951e-07" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="1 1 1 1" mesh="Shoulder_Knuckle__Shoulder_Knuckle_Mirrored" />
+          <body name="lj2_link" pos="0.026392489 -0.0492306902 -0.07260424579999999" quat="0.9999807207700664 -0.005792917528667988 -0.001554618799642534 0.001607281889630425">
+            <inertial pos="-0.0107095044 0.0400583535 -0.0796809678" quat="0.9965164299350351 0.08133853956329569 0.01165113660884656 0.01425825609829678" mass="0.650826" diaginertia="0.002113779661702704 0.002099660622887728 0.0003710609744095697" />
+            <geom name="l_bicep__bicep" pos="0.0828039 0.082203 -1.14151" quat="0.0056612 -0.708326 -0.705855 -0.00326499" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="1 1 1 1" mesh="Bicep__Bicep_Mirrored" />
+            <geom name="l_bicep_cover__bicep_cover" pos="0.0828039 0.082203 -1.14151" quat="0.0056612 -0.708326 -0.705855 -0.00326499" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="1 1 1 1" mesh="Bicep_Cover__Bicep_Cover_Mirrored" />
+            <body name="lj3_link" pos="-0.0438706882 0.0612675039 -0.154751" quat="0.9722814300791123 0.2336178290190089 0.009296663500756449 -0.002258923530183803">
+              <inertial pos="0.0295485184 -0.0480778694 -0.0455667257" quat="0.6624830855915185 -0.2506667029146688 0.2234015355363261 0.6696074366933531" mass="0.199798" diaginertia="0.0003674395774290074 0.0003218324442854091 0.0001541742462855832" />
+              <geom name="l_forearm__forearm" pos="0.15217 -0.426518 -0.883824" quat="0.168928 0.687839 0.689205 -0.152767" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="1 1 1 1" mesh="Forearm__Forearm_Mirrored" />
+              <geom name="l_forearm_cover__forearm_cover" pos="0.15217 -0.426518 -0.883824" quat="0.168928 0.687839 0.689205 -0.152767" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="1 1 1 1" mesh="Forearm_Cover__Forearm_Cover_Mirrored" />
+              <body name="lj4_link" pos="0.0305826923 -0.06477205279999999 -0.0843053818" quat="0.9736623140795079 -0.2279949480186177 -4.101406900334915e-05 1.171203620095639e-05">
+                <inertial pos="-0.000163796674 0.000568408015 -0.032266893" quat="0.9988428185508775 -0.04806670285063698 0.001457129141253007 0.0007019124399924867" mass="0.125342" diaginertia="7.728961981328147e-05 7.346021201892877e-05 2.47471379677899e-05" />
+                <geom name="l_forearm_rotation__forearm_rotation" pos="0.122273 -0.0204958 -0.875993" quat="0.0259438 0.708141 0.705521 -0.010154" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="1 1 1 1" mesh="Forearm_Rotation__Forearm_Rotation_Mirrored" />
+                <body name="lj5_link" pos="-0.00018385403 0.0177248978 -0.0543985991" quat="0.9999992111818515 2.103722480382565e-10 1.476087070268429e-07 -0.001256039670228413">
+                  <inertial pos="-0.000411864738 -0.0169473402 -0.022585011" quat="0.876204394497155 -0.1548490605330388 0.3135469931089098 0.3316261609527671" mass="0.047169" diaginertia="2.574572341196359e-05 2.486351762360345e-05 2.364033976443299e-05" />
+                  <geom name="l_wrist_knuckle__wrist_knuckle" pos="0.122433 -0.0647058 -0.820394" quat="0.0265641 0.789861 0.612658 -0.00796972" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="1 1 1 1" mesh="Wrist_Knuckle__Wrist_Knuckle_Mirrored" />
+                  <body name="lj6_link" pos="-0.0162467796 -0.01781503 -0.0453221368" quat="0.9999717861874783 -4.922311260922853e-12 -0.007511779351408335 5.546702731039916e-10">
+                    <inertial pos="0.0161742021 0.0010126886 -0.0357884513" quat="0.9963076532702368 0.05215956576755235 0.03182660879667833 -0.06031174600852642" mass="0.234619" diaginertia="0.0001783985632474128 0.000168530295905649 0.000109687056846938" />
+                    <geom name="l_hand__hand" pos="0.0765085 -0.0130935 -0.783113" quat="0.0131831 -0.789757 -0.612758 0.02524" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="1 1 1 1" mesh="Hand__Hand_Mirrored" />
+                    <geom name="l_wrist_cam__wrist_cam" pos="0.0765085 -0.0130935 -0.783113" quat="0.0131831 -0.789757 -0.612758 0.02524" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.792157 0.819608 0.933333 1" mesh="Wrist_Cam__Wrist_Cam_Mirrored" />
+                    <geom name="l_hand_motor_mount__hand_motor_mount" pos="0.0765085 -0.0130935 -0.783113" quat="0.0131831 -0.789757 -0.612758 0.02524" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="1 1 1 1" mesh="Hand_Motor_Mount__Hand_Motor_Mount_Mirrored" />
+                    <geom name="l_right_finger__right_finger" pos="0.0767008 -0.0130894 -0.783011" quat="0.0131831 -0.789757 -0.612758 0.0252401" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="1 1 1 1" mesh="Right_Finger__Right_Finger_Mirrored" />
+                    <geom name="l_left_finger__left_finger" pos="0.0754527 -0.0126285 -0.783457" quat="0.0131831 -0.789757 -0.612758 0.0252401" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="1 1 1 1" mesh="Left_Finger__Left_Finger_Mirrored" />
+                    <body name="l_finger1" pos="0.0001108 0.016692953 -0.0536783658" quat="0.9999633736897178 -0.008558696107344291 1.218075289622039e-09 1.423152879558405e-07">
+                      <inertial pos="0.00186611555 -0.011529999 -0.0215318206" quat="0.9997077268337756 0.01124936790181945 -0.0202993571797965 -0.006771168934663059" mass="0.029906" diaginertia="3.543919293222978e-05 2.431362599017109e-05 1.358692257759916e-05" />
+                    </body>
+                    <body name="l_finger2" pos="0.0341898 0.0199926095 -0.0537348535" quat="0.9999633736897178 -0.008558696107344291 1.218075989622039e-09 1.423152879558405e-07">
+                      <inertial pos="-0.00916223029 -0.0151622295 -0.0516249581" quat="0.9789473678939969 0.2027168913960631 0.02381779363603697 -0.0007909124118492105" mass="0.017443" diaginertia="1.45195445618509e-05 1.140510244174039e-05 4.218373266408714e-06" />
+                    </body>
+                  </body>
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+      <body name="rj0_link" pos="-1.4278550395e-06 -0.0125038358 1.348510790000047" quat="0.7071045456801577 2.597342018825153e-06 1.155392919477385e-06 -0.7071090166801557">
+        <inertial pos="0.0576949963 0.000152166604 -0.07930555340000001" quat="0.601923362159864 -0.04170248547332946 -0.03769302446275345 0.7965729123554001" mass="0.750304" diaginertia="0.002373540556938408 0.002238775552556464 0.0005856343185051303" />
+        <geom name="shoulder__shoulder" pos="-0.0135972 0.0111704 -1.35523" quat="3.89602e-06 0.707104 0.707109 -1.43281e-07" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="1 1 1 1" mesh="Shoulder__Shoulder" />
+        <geom name="shoulder_cover__shoulder_cover" pos="-0.0135972 0.0111704 -1.35523" quat="3.89602e-06 0.707104 0.707109 -1.43281e-07" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="1 1 1 1" mesh="Shoulder_Cover__Shoulder_Cover" />
+        <body name="rj1_link" pos="0.0946761 -0.006325812 -0.146285" quat="0.9999999999999805 8.703833859999829e-08 -2.332166179999954e-08 1.770339669999965e-07">
+          <inertial pos="-0.0180869968 -0.009785337240000001 -0.0369365583" quat="0.3041462776459736 0.4635315942003385 -0.7620965832284726 0.3344283193805246" mass="0.148651" diaginertia="0.0002163288355901978 0.0001683220540666443 0.0001370884643431583" />
+          <geom name="shoulder_knuckle__shoulder_knuckle" pos="-0.108033 0.0178402 -1.21022" quat="3.77651e-06 0.707105 0.707108 6.37229e-08" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="1 1 1 1" mesh="Shoulder_Knuckle__Shoulder_Knuckle" />
+          <body name="rj2_link" pos="-0.0186317207 -0.0444170084 -0.0712032303" quat="0.9999908542937298 -0.003991042231172299 0.001066458640313254 -0.001107057710325179">
+            <inertial pos="0.008065958729999999 0.0340374054 -0.0796053432" quat="0.9963858251062612 0.08288699027614345 -0.005318917771257837 -0.01779728867046862" mass="0.650826" diaginertia="0.002113799623437452 0.002099709372224437 0.0003710120343381101" />
+            <geom name="bicep__bicep" pos="-0.0855001 0.0717317 -1.14156" quat="-0.00233285 0.706213 0.707984 0.00404154" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="1 1 1 1" mesh="Bicep__Bicep" />
+            <geom name="bicep_cover__bicep_cover" pos="-0.0855001 0.0717317 -1.14156" quat="-0.00233285 0.706213 0.707984 0.00404154" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="1 1 1 1" mesh="Bicep_Cover__Bicep_Cover" />
+            <body name="rj3_link" pos="0.0338331345 0.0554308484 -0.154998312" quat="-0.235173600103859 0.9719466144292377 0.0008566332783783121 0.00352458411155655">
+              <inertial pos="-0.0232043126 0.0477128382 0.047324596" quat="0.66827383424446 -0.240283346447177 0.2114174335786317 0.6715479615510572" mass="0.199798" diaginertia="0.0003570838514817334 0.0003230978948579859 0.0001573712326602808" />
+              <geom name="forearm__forearm" pos="-0.133159 0.434167 0.881762" quat="0.688091 -0.158941 -0.167459 -0.687914" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="1 1 1 1" mesh="Forearm__Forearm" />
+              <geom name="forearm_cover__forearm_cover" pos="-0.133159 0.434167 0.881762" quat="0.688091 -0.158941 -0.167459 -0.687914" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="1 1 1 1" mesh="Forearm_Cover__Forearm_Cover" />
+              <body name="rj4_link" pos="-0.0241830096 0.06531466480000001 0.083885323" quat="4.240447711613978e-05 -6.388539992431574e-06 0.9729211823703083 -0.2311371260879743">
+                <inertial pos="-0.000162509875 -0.000568511852 -0.0322668855" quat="0.9987992808372838 0.04896266507479508 0.001528111958876077 0.0005647136790661806" mass="0.125342" diaginertia="7.728962791102705e-05 7.347744777133736e-05 2.472990961763559e-05" />
+                <geom name="forearm_rotation__forearm_rotation" pos="0.109713 0.0219167 -0.877495" quat="0.0222193 -0.707788 0.705934 0.0141308" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="1 1 1 1" mesh="Forearm_Rotation__Forearm_Rotation" />
+                <body name="rj5_link" pos="-0.000138374553 -0.0177249878 -0.0543985888" quat="-0.001793454939478085 0.7071056827942246 0.001793448969478087 0.7071033307942253">
+                  <inertial pos="-0.0225812898 -0.0169474163 -0.0005587814350000001" quat="0.146683819990272 0.3639559934881239 0.3554595782457216 0.8483327059535727" mass="0.047169" diaginertia="2.577429521430996e-05 2.486065928030813e-05 2.361447160538193e-05" />
+                  <geom name="wrist_knuckle__wrist_knuckle" pos="-0.821884 -0.0658766 0.110037" quat="0.549009 -0.417711 -0.566479 0.450786" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="1 1 1 1" mesh="Wrist_Knuckle__Wrist_Knuckle" />
+                  <body name="rj6_link" pos="-0.0452153111 -0.0178151228 -0.0165401029" quat="0.497857770775455 -0.4978599487754541 0.5021312587735276 0.5021327617735269">
+                    <inertial pos="-0.0161738446 0.0357480862 0.00197802306" quat="0.6389755324787055 0.7677748898316162 -0.04723814899226238 -0.0007380497208551579" mass="0.234619" diaginertia="0.0001783437800245734 0.0001608670241937763 0.0001174053157816503" />
+                    <geom name="hand__hand" pos="-0.0692836 0.783555 -0.0144337" quat="-0.415024 0.453376 0.547517 0.56783" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="1 1 1 1" mesh="Hand__Hand" />
+                    <geom name="hand_motor_mount__hand_motor_mount" pos="-0.0692836 0.783555 -0.0144337" quat="-0.415024 0.453376 0.547517 0.56783" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="1 1 1 1" mesh="Hand_Motor_Mount__Hand_Motor_Mount" />
+                    <geom name="left_finger__left_finger" pos="-0.0682247 0.783895 -0.0139724" quat="-0.415024 0.453376 0.547517 0.56783" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="1 1 1 1" mesh="Left_Finger__Left_Finger" />
+                    <geom name="right_finger__right_finger" pos="-0.0694763 0.783454 -0.014429" quat="-0.415024 0.453376 0.547517 0.56783" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="1 1 1 1" mesh="Right_Finger__Right_Finger" />
+                    <geom name="wrist_cam__wrist_cam" pos="-0.0692836 0.783555 -0.0144337" quat="-0.415024 0.453376 0.547517 0.56783" type="mesh" contype="0" conaffinity="0" group="1" density="0" rgba="0.792157 0.819608 0.933333 1" mesh="Wrist_Cam__Wrist_Cam" />
+                    <body name="r_finger1" pos="-0.00011 0.0532083019 0.0181353097" quat="0.7036073077759837 0.7105890207737607 1.03149554967159e-07 -9.809954836876682e-08">
+                      <inertial pos="-0.00184372821 -0.0115300024 -0.0216017772" quat="0.9996772880807746 0.01100269327067248 0.02177035683526439 0.00709309520057339" mass="0.029906" diaginertia="3.545115558629816e-05 2.432585326225717e-05 1.358809955144461e-05" />
+                    </body>
+                    <body name="r_finger2" pos="-0.034189 0.0531757179 0.0214352888" quat="0.7036073077759837 0.7105890207737607 1.03149552967159e-07 -9.809954966876681e-08">
+                      <inertial pos="0.00449482473 -0.0159012929 -0.0349207803" quat="0.9958622104152762 0.08254356484808714 -0.03798045400189731 0.001582050182285857" mass="0.017443" diaginertia="2.201591241737237e-05 1.674481187699948e-05 6.876523265628129e-06" />
+                    </body>
+                  </body>
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+    </body>
+    <body name="table_edge" pos="0.32 0 0.85" mocap="true">
+      <geom name="table_edge_geom" size="0.05 0.6 0.15" type="box" contype="2" conaffinity="2" mass="0" rgba="0.47 0.31 0.18 1" />
+    </body>
+  </worldbody>
+  <actuator>
+    <general name="left" joint="left" forcelimited="true" forcerange="-15 15" />
+    <general name="right" joint="right" forcelimited="true" forcerange="-15 15" />
+  </actuator>
+</mujoco>

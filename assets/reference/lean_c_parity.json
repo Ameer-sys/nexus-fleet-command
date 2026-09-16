@@ -1,0 +1,7 @@
+{
+  "source": "/Users/jliu/Documents/Github/bb-bedrock/bb-firmware/stm/balance/policy.c",
+  "source_sha256": "7a1cef4062e123f2289d04a24d958b8ddcf37ccab7918f63055cdfbd816c8d0a",
+  "c_reference_sha256": "643a9ce6d5715946f2805655346c071600e1023b43dd0eb0da6ee71dc2804257",
+  "samples": 2048,
+  "description": "Verbatim ELU/Softplus/linear/forward/lean functions from STM policy.c; unrelated arms weights and initialization removed."
+}
