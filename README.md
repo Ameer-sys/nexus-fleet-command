@@ -26,4 +26,4 @@ uv run --locked python -m bbsim lean
 
 Hold **WASD** to drive; release to stop. **Space** stops, **R** resets, **P** pauses, **Esc** closes. **M** toggles arm motion; **L** toggles table lean. Drag/scroll to move the camera.
 
-Tested on Apple Silicon macOS; the UI requires a desktop with OpenGL. For a headless check, append `--headless --duration 5`. Use `--help` for options. [Model details](docs/simulation.md) · [Provenance](PROVENANCE.md).
+Tested on Apple Silicon macOS; the UI requires a desktop with OpenGL. For a headless check, append `--headless --duration 5`. Use `--help` for options.

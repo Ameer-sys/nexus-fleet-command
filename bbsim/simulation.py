@@ -3,7 +3,7 @@
 import mujoco
 import numpy as np
 
-from .config import ARM_JOINTS, MODEL_DIR, WHEELS
+from .config import ARM_JOINTS, ASSETS, WHEELS
 from .policy import Actor, Observations, WheelMotor
 
 
@@ -21,7 +21,7 @@ class Simulation:
         wall_distance=0.32,
     ):
         self.kind = kind
-        spec = mujoco.MjSpec.from_file(str(MODEL_DIR / f"{kind}.xml"))
+        spec = mujoco.MjSpec.from_file(str(ASSETS / f"{kind}.xml"))
         if terrain == "bumps":
             for i in range(8):
                 spec.worldbody.add_geom(

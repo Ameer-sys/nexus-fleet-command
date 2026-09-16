@@ -49,8 +49,8 @@ class WheelMotor:
     """Residual LSTM motor model; torques use the MuJoCo joint frame."""
 
     def __init__(self, side):
-        self.config = json.loads((ASSETS / f"reference/wheel_{side}.json").read_text())
-        with np.load(ASSETS / f"reference/wheel_{side}.npz") as z:
+        self.config = json.loads((ASSETS / f"motors/wheel_{side}.json").read_text())
+        with np.load(ASSETS / f"motors/wheel_{side}.npz") as z:
             self.weights = {k: z[k] for k in z.files}
         self.reset()
 
