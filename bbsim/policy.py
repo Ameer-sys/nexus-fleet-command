@@ -1,7 +1,5 @@
 """Policy inference, training observation layout, and deterministic wheel plant."""
 
-import json
-
 import numpy as np
 import onnxruntime as ort
 from scipy.special import expit
@@ -48,8 +46,30 @@ class Actor:
 class WheelMotor:
     """Residual LSTM motor model; torques use the MuJoCo joint frame."""
 
-    def __init__(self, side):
-        self.config = json.loads((ASSETS / f"motors/wheel_{side}.json").read_text())
+    PARAMETERS = (
+        "hid",
+        "layers",
+        "pos_scale",
+        "vel_scale",
+        "torque_scale",
+        "frictionloss",
+        "dc_sat",
+        "dc_vlim",
+        "dc_elim",
+        "w_eps",
+        "sign",
+    )
+
+    def __init__(self, model, side):
+        self.config = {
+            name: float(model.numeric(f"wheel_{side}_{name}").data[0])
+            for name in self.PARAMETERS
+        }
+        for name in ("hid", "layers"):
+            value = self.config[name]
+            if not value.is_integer() or value < 1:
+                raise ValueError(f"wheel_{side}_{name} must be a positive integer")
+            self.config[name] = int(value)
         with np.load(ASSETS / f"motors/wheel_{side}.npz") as z:
             self.weights = {k: z[k] for k in z.files}
         self.reset()

@@ -50,7 +50,7 @@ class Simulation:
         self.arm_dof = [self.model.joint(n).dofadr[0] for n in ARM_JOINTS] if kind == "arms" else []
         self.arm_act = [self.model.actuator(n).id for n in ARM_JOINTS] if kind == "arms" else []
         self.actor = Actor(kind)
-        self.motors = [WheelMotor(s) for s in WHEELS]
+        self.motors = [WheelMotor(self.model, s) for s in WHEELS]
         self.command = np.array([velocity, yaw], dtype=float)
         self.lean_degrees = lean_degrees
         self.arm_motion = arm_motion

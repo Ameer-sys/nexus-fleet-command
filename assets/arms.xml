@@ -2,6 +2,30 @@
 <mujoco model="chopped_urdf_v2_training_dynamics">
   <compiler angle="radian" meshdir="meshes/" />
   <option timestep="0.005" integrator="implicitfast" iterations="10" ls_iterations="20" />
+  <custom>
+    <numeric name="wheel_left_hid" data="64" />
+    <numeric name="wheel_left_layers" data="1" />
+    <numeric name="wheel_left_pos_scale" data="0.2330816090106964" />
+    <numeric name="wheel_left_vel_scale" data="0.023575877770781517" />
+    <numeric name="wheel_left_torque_scale" data="1.0" />
+    <numeric name="wheel_left_frictionloss" data="0.328" />
+    <numeric name="wheel_left_dc_sat" data="8.0" />
+    <numeric name="wheel_left_dc_vlim" data="44.0" />
+    <numeric name="wheel_left_dc_elim" data="6.5" />
+    <numeric name="wheel_left_w_eps" data="0.15" />
+    <numeric name="wheel_left_sign" data="1.0" />
+    <numeric name="wheel_right_hid" data="64" />
+    <numeric name="wheel_right_layers" data="1" />
+    <numeric name="wheel_right_pos_scale" data="0.2688172161579132" />
+    <numeric name="wheel_right_vel_scale" data="0.023460423573851585" />
+    <numeric name="wheel_right_torque_scale" data="1.0" />
+    <numeric name="wheel_right_frictionloss" data="0.311" />
+    <numeric name="wheel_right_dc_sat" data="8.0" />
+    <numeric name="wheel_right_dc_vlim" data="44.0" />
+    <numeric name="wheel_right_dc_elim" data="6.5" />
+    <numeric name="wheel_right_w_eps" data="0.15" />
+    <numeric name="wheel_right_sign" data="1.0" />
+  </custom>
   <asset>
     <mesh name="Base_Extrusion__Base_Extrusion" content_type="model/stl" file="Base_Extrusion__Base_Extrusion.stl" />
     <mesh name="Base_Extrusion__Base_Extrusion__Base_Extrusion__Base_Extrusion" content_type="model/stl" file="Base_Extrusion__Base_Extrusion__Base_Extrusion__Base_Extrusion.stl" />
