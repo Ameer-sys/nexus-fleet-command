@@ -8,7 +8,7 @@ import mujoco
 import numpy as np
 from OpenGL.GL import glViewport
 
-from .config import DIRECTION_KEYS, DT
+from .config import DIRECTION_KEYS
 from .drive import DriveControls
 
 MOVEMENT_KEYS = {glfw.KEY_W: "W", glfw.KEY_A: "A", glfw.KEY_S: "S", glfw.KEY_D: "D"}
@@ -40,10 +40,13 @@ class Button:
 
 class DriveWindow:
     PANEL = 320
+    INSTRUCTIONS = (
+        "Hold WASD or the on-screen buttons to drive. Release to stop. Space: stop; R: reset."
+    )
 
-    def __init__(self, sim):
+    def __init__(self, sim, controls=None, title=None):
         self.sim = sim
-        self.controls = DriveControls(sim)
+        self.controls = controls if controls is not None else DriveControls(sim)
         self.window = None
         self.context = None
         self.drag = None
@@ -54,7 +57,11 @@ class DriveWindow:
         try:
             glfw.window_hint(glfw.SAMPLES, 4)
             self.window = glfw.create_window(
-                1180, 740, f"BracketBot | {sim.kind.title()} policy | WASD drive", None, None
+                1180,
+                740,
+                title or f"BracketBot | {sim.kind.title()} policy | WASD drive",
+                None,
+                None,
             )
             if not self.window:
                 raise RuntimeError("Could not create the BracketBot drive window")
@@ -71,7 +78,11 @@ class DriveWindow:
             self.scene = mujoco.MjvScene(sim.model, maxgeom=2000)
             self.option = mujoco.MjvOption()
             self.camera = mujoco.MjvCamera()
-            self.camera.distance, self.camera.azimuth, self.camera.elevation = 2.65, 135, -12
+            self.camera.distance, self.camera.azimuth, self.camera.elevation = (
+                2.65,
+                135,
+                -12,
+            )
             glfw.set_key_callback(self.window, self._key)
             glfw.set_window_focus_callback(self.window, self._focus)
             glfw.set_mouse_button_callback(self.window, self._mouse_button)
@@ -176,13 +187,23 @@ class DriveWindow:
             else mujoco.mjtMouse.mjMOUSE_ZOOM
         )
         mujoco.mjv_moveCamera(
-            self.sim.model, action, dx / self.height, dy / self.height, self.scene, self.camera
+            self.sim.model,
+            action,
+            dx / self.height,
+            dy / self.height,
+            self.scene,
+            self.camera,
         )
 
     def _scroll(self, window, dx, dy):
         if self.mouse[0] < self.width - self.PANEL:
             mujoco.mjv_moveCamera(
-                self.sim.model, mujoco.mjtMouse.mjMOUSE_ZOOM, 0, -0.05 * dy, self.scene, self.camera
+                self.sim.model,
+                mujoco.mjtMouse.mjMOUSE_ZOOM,
+                0,
+                -0.05 * dy,
+                self.scene,
+                self.camera,
             )
 
     def _status_text(self):
@@ -217,7 +238,11 @@ class DriveWindow:
         self._text(x, 20, "BRACKETBOT", big=True)
         self._text(x, 57, f"{sim.kind.upper()} POLICY  /  DRIVE")
         self._fill(
-            x, 94, 276, 32, (0.12, 0.27, 0.24, 1) if not sim.failed else (0.40, 0.15, 0.16, 1)
+            x,
+            94,
+            276,
+            32,
+            (0.12, 0.27, 0.24, 1) if not sim.failed else (0.40, 0.15, 0.16, 1),
         )
         self._text(x + 6, 99, self._status_text())
         pitch, _, _, speed = sim.state()
@@ -284,11 +309,17 @@ class DriveWindow:
         )
         self._text(18, 16, f"{sim.data.time:6.1f} s  |  200 Hz  |  Chopped model")
 
+    def _lookat(self):
+        return self.sim.data.qpos[:3] + [0, 0, 0.64]
+
+    def _decorate_scene(self):
+        pass
+
     def render(self, capture=None):
         self._dimensions()
         if self.pixel_width == 0 or self.pixel_height == 0:
             return
-        self.camera.lookat[:] = self.sim.data.qpos[:3] + [0, 0, 0.64]
+        self.camera.lookat[:] = self._lookat()
         mujoco.mjv_updateScene(
             self.sim.model,
             self.sim.data,
@@ -298,8 +329,11 @@ class DriveWindow:
             mujoco.mjtCatBit.mjCAT_ALL,
             self.scene,
         )
+        self._decorate_scene()
         mujoco.mjr_render(
-            self._rect(0, 0, self.width - self.PANEL, self.height), self.scene, self.context
+            self._rect(0, 0, self.width - self.PANEL, self.height),
+            self.scene,
+            self.context,
         )
         self._panel()
         if capture is not None:
@@ -316,22 +350,20 @@ class DriveWindow:
         glfw.swap_buffers(self.window)
 
     def run(self, duration, tick):
-        print(
-            "Hold WASD or the on-screen buttons to drive. Release to stop. Space: stop; R: reset.",
-            flush=True,
-        )
+        print(self.INSTRUCTIONS, flush=True)
         deadline = time.monotonic()
+        dt = self.sim.model.opt.timestep
         while not glfw.window_should_close(self.window) and self.sim.data.time < duration:
             glfw.poll_events()
             now = time.monotonic()
             self.controls.update()
             if not self.controls.paused and not self.sim.failed:
-                steps = min(8, max(0, int((now - deadline) / DT) + 1))
+                steps = min(round(0.04 / dt), max(0, int((now - deadline) / dt) + 1))
                 for _ in range(steps):
                     if self.sim.data.time >= duration or self.sim.failed:
                         break
                     tick()
-                    deadline += DT
+                    deadline += dt
                 if deadline < now - 0.1:
                     deadline = now
             else:
