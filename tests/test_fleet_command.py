@@ -145,7 +145,7 @@ class FleetCommandTests(unittest.TestCase):
 
     def test_fourth_job_queues_then_assigns_when_robot_is_free(self) -> None:
         demo, jobs = self._three_busy()
-        queued = demo.submit_fleet_command("MED-101", "MEDICAL", priority=8)
+        queued = demo.submit_fleet_command("MED-KIT-01", "MEDICAL", priority=8)
         self.assertEqual(queued.status, JobStatus.PENDING)
         self.assertIsNone(queued.assigned_robot_id)
         self.assertEqual(demo.last_decision["type"], "QUEUED")
@@ -158,8 +158,8 @@ class FleetCommandTests(unittest.TestCase):
 
     def test_higher_priority_pending_job_dispatches_first(self) -> None:
         demo, jobs = self._three_busy()
-        low = demo.submit_fleet_command("EL-201", "STORAGE_B", priority=2)
-        high = demo.submit_fleet_command("MED-101", "MEDICAL", priority=10)
+        low = demo.submit_fleet_command("ELECTRONICS-01", "STORAGE_B", priority=2)
+        high = demo.submit_fleet_command("MED-KIT-01", "MEDICAL", priority=10)
         robot = demo.fleet.robots[jobs[0].assigned_robot_id]
         robot._complete_job(demo.fleet.steps)
         demo.step()
@@ -225,6 +225,116 @@ class FleetCommandTests(unittest.TestCase):
         self.assertEqual(demo.mode, "scripted")
         self.assertTrue(demo.running)
         self.assertEqual(len(demo.fleet.jobs), 3)
+        demo.close()
+
+
+class BatchFleetCommandTests(unittest.TestCase):
+    def test_batch_api_creates_three_real_jobs_and_assigns_three_robots(self) -> None:
+        runtime = ControlCenterRuntime(demo_speed=0.1)
+        app = create_app(runtime)
+        with TestClient(app) as client:
+            response = client.post(
+                "/api/jobs/batch",
+                json={
+                    "items": [
+                        {"package_id": "MED-KIT-01", "destination": "OUTBOUND"},
+                        {"package_id": "ELECTRONICS-01", "destination": "OUTBOUND"},
+                        {"package_id": "BOX-003", "destination": "OUTBOUND"},
+                    ]
+                },
+            )
+            self.assertEqual(response.status_code, 200)
+            state = response.json()
+            self.assertEqual(state["batch"]["submitted"], 3)
+            self.assertEqual(state["batch"]["active"], 3)
+            self.assertEqual(state["batch"]["waiting"], 0)
+            self.assertEqual(len(state["jobs"]), 3)
+            self.assertEqual(
+                {job["assigned_robot"] for job in state["jobs"]},
+                {"A", "B", "C"},
+            )
+            self.assertEqual(len(runtime.demo.fleet.auction_history), 3)
+
+    def test_five_job_batch_assigns_three_and_queues_two_by_priority(self) -> None:
+        demo = WarehouseDemo(mode="manual")
+        jobs = demo.submit_fleet_batch(
+            [
+                ("BOX-001", "OUTBOUND"),
+                ("BOX-002", "OUTBOUND"),
+                ("BOX-003", "OUTBOUND"),
+                ("ELECTRONICS-01", "OUTBOUND"),
+                ("MED-KIT-01", "OUTBOUND"),
+            ]
+        )
+        self.assertEqual(sum(job.status is not JobStatus.PENDING for job in jobs), 3)
+        self.assertEqual(sum(job.status is JobStatus.PENDING for job in jobs), 2)
+        self.assertEqual([job.package_id for job in demo.fleet.pending_jobs], ["MED-KIT-01", "ELECTRONICS-01"])
+        robot = next(robot for robot in demo.fleet if robot.busy)
+        robot._complete_job(demo.fleet.steps)
+        demo.step()
+        high = next(job for job in jobs if job.package_id == "MED-KIT-01")
+        low = next(job for job in jobs if job.package_id == "ELECTRONICS-01")
+        self.assertIsNotNone(high.assigned_robot_id)
+        self.assertEqual(low.status, JobStatus.PENDING)
+        demo.close()
+
+    def test_batch_validation_is_atomic_for_duplicates_and_active_packages(self) -> None:
+        runtime = ControlCenterRuntime(demo_speed=0.1)
+        app = create_app(runtime)
+        with TestClient(app) as client:
+            duplicate = client.post(
+                "/api/jobs/batch",
+                json={"items": [
+                    {"package_id": "BOX-003", "destination": "OUTBOUND"},
+                    {"package_id": "BOX-003", "destination": "INBOUND"},
+                ]},
+            )
+            self.assertEqual(duplicate.status_code, 409)
+            self.assertIn("duplicate", duplicate.json()["detail"])
+            self.assertEqual(client.get("/api/snapshot").json()["jobs"], [])
+
+        demo = WarehouseDemo(mode="manual")
+        self.assertEqual(demo.fleet.jobs, {})
+        demo.submit_fleet_command("BOX-003", "OUTBOUND")
+        with self.assertRaisesRegex(ValueError, "already"):
+            demo.submit_fleet_batch(
+                [("MED-KIT-01", "OUTBOUND"), ("BOX-003", "OUTBOUND")]
+            )
+        self.assertNotIn("MED-KIT-01", {job.package_id for job in demo.fleet.jobs.values()})
+        demo.close()
+
+    def test_batch_preserves_each_packages_category_priority_and_risk(self) -> None:
+        demo = WarehouseDemo(mode="manual")
+        jobs = demo.submit_fleet_batch(
+            [
+                ("MED-KIT-01", "OUTBOUND"),
+                ("ELECTRONICS-01", "OUTBOUND"),
+                ("BOX-003", "OUTBOUND"),
+            ]
+        )
+        properties = {
+            job.package_id: (job.handling_category, job.priority, job.risk)
+            for job in jobs
+        }
+        self.assertEqual(properties["MED-KIT-01"], ("MEDICAL", 10, "CRITICAL"))
+        self.assertEqual(properties["ELECTRONICS-01"], ("FRAGILE", 7, "MEDIUM"))
+        self.assertEqual(properties["BOX-003"], ("STANDARD", 3, "LOW"))
+        demo.close()
+
+    def test_batch_jobs_use_existing_traffic_coordination(self) -> None:
+        demo = WarehouseDemo(mode="manual")
+        jobs = demo.submit_fleet_batch(
+            [("BOX-101", "OUTBOUND"), ("FR-301", "INBOUND")]
+        )
+        for _ in range(12_000):
+            demo.step()
+            if all(job.status is JobStatus.COMPLETED for job in jobs):
+                break
+        traffic_events = [event for event in demo.events if event.category == "TRAFFIC"]
+        self.assertTrue(any("Conflict" in event.message for event in traffic_events))
+        self.assertTrue(any("yielding" in event.message for event in traffic_events))
+        self.assertTrue(any("resumed" in event.message for event in traffic_events))
+        self.assertGreater(demo.fleet.traffic.conflicts_prevented, 0)
         demo.close()
 
 

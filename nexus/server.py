@@ -27,6 +27,16 @@ class FleetCommandRequest(BaseModel):
     priority: int | None = Field(default=None, ge=1, le=10)
 
 
+class BatchJobItem(BaseModel):
+    package_id: str
+    destination: str
+
+
+class BatchFleetCommandRequest(BaseModel):
+    items: list[BatchJobItem] = Field(min_length=1, max_length=64)
+    priority: int | None = Field(default=None, ge=1, le=10)
+
+
 class ControlCenterRuntime:
     """One authoritative demo plus one throttled simulation task."""
 
@@ -102,6 +112,40 @@ class ControlCenterRuntime:
                 priority=priority,
             )
             state = demo.snapshot()
+        await self.broadcast(state)
+        return state
+
+    async def dispatch_batch(
+        self,
+        items: list[BatchJobItem],
+        priority: int | None,
+    ) -> dict[str, Any]:
+        async with self._lock:
+            demo = self.ensure_demo()
+            jobs = demo.submit_fleet_batch(
+                [(item.package_id, item.destination) for item in items],
+                priority=priority,
+            )
+            state = demo.snapshot()
+            created = {job.job_id for job in jobs}
+            submitted = [job for job in state["jobs"] if job["job_id"] in created]
+            waiting = sum(job["status"] == "PENDING" for job in submitted)
+            state["batch"] = {
+                "submitted": len(submitted),
+                "active": len(submitted) - waiting,
+                "waiting": waiting,
+                "results": [
+                    {
+                        "job_id": job["job_id"],
+                        "package_id": job["package_id"],
+                        "category": job["handling_category"],
+                        "priority": job["priority"],
+                        "status": job["status"],
+                        "assigned_robot_id": job["assigned_robot"],
+                    }
+                    for job in submitted
+                ],
+            }
         await self.broadcast(state)
         return state
 
@@ -207,6 +251,13 @@ def create_app(runtime: ControlCenterRuntime | None = None) -> FastAPI:
                 request.category,
                 request.priority,
             )
+        except ValueError as error:
+            raise HTTPException(status_code=409, detail=str(error)) from error
+
+    @app.post("/api/jobs/batch")
+    async def dispatch_batch(request: BatchFleetCommandRequest) -> dict[str, Any]:
+        try:
+            return await control.dispatch_batch(request.items, request.priority)
         except ValueError as error:
             raise HTTPException(status_code=409, detail=str(error)) from error
 

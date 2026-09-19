@@ -11,7 +11,7 @@ from .jobs import Job, JobStatus
 from .robot import NexusRobot
 from .solana import ChainStatus, SolanaCustodyLedger
 from .traffic import TrafficConfig, TrafficManager, build_trajectory
-from .warehouse import WarehousePackage, create_destinations, create_packages
+from .warehouse import WarehouseDestination, WarehousePackage, create_destinations, create_packages
 
 
 PRIORITY_REQUEST_TICK = 1_200
@@ -148,20 +148,12 @@ class WarehouseDemo:
     ) -> Job:
         if self.mode != "manual":
             self.reset("manual")
-        package = self.packages.get(package_id)
-        destination = self.destinations.get(destination_id)
-        if package is None:
-            raise ValueError(f"unknown package: {package_id}")
-        if destination is None:
-            raise ValueError(f"unknown destination: {destination_id}")
-        if package.status != "AVAILABLE":
-            raise ValueError(f"package {package_id} is already {package.status.lower()}")
-        handling = (category or package.category).upper()
-        if handling not in {"STANDARD", "FRAGILE", "MEDICAL", "HIGH_VALUE"}:
-            raise ValueError("category must be STANDARD, FRAGILE, MEDICAL, or HIGH_VALUE")
-        command_priority = package.priority if priority is None else int(priority)
-        if not 1 <= command_priority <= 10:
-            raise ValueError("priority must be between 1 and 10")
+        package, destination, handling, command_priority = self._validate_fleet_command(
+            package_id,
+            destination_id,
+            category=category,
+            priority=priority,
+        )
 
         self._manual_job_counter += 1
         job = Job(
@@ -216,6 +208,61 @@ class WarehouseDemo:
                 details=self.last_decision,
             )
         return job
+
+    def submit_fleet_batch(
+        self,
+        items: list[tuple[str, str]],
+        *,
+        priority: int | None = None,
+    ) -> list[Job]:
+        """Validate atomically, then submit normal jobs through the existing fleet path."""
+
+        if self.mode != "manual":
+            self.reset("manual")
+        if not items:
+            raise ValueError("batch must contain at least one item")
+        package_ids = [package_id for package_id, _ in items]
+        if len(package_ids) != len(set(package_ids)):
+            raise ValueError("duplicate package in batch")
+        for package_id, destination_id in items:
+            self._validate_fleet_command(
+                package_id,
+                destination_id,
+                category=None,
+                priority=priority,
+            )
+        return [
+            self.submit_fleet_command(
+                package_id,
+                destination_id,
+                priority=priority,
+            )
+            for package_id, destination_id in items
+        ]
+
+    def _validate_fleet_command(
+        self,
+        package_id: str,
+        destination_id: str,
+        *,
+        category: str | None,
+        priority: int | None,
+    ) -> tuple[WarehousePackage, WarehouseDestination, str, int]:
+        package = self.packages.get(package_id)
+        destination = self.destinations.get(destination_id)
+        if package is None:
+            raise ValueError(f"unknown package: {package_id}")
+        if destination is None:
+            raise ValueError(f"unknown destination: {destination_id}")
+        if package.status != "AVAILABLE":
+            raise ValueError(f"package {package_id} is already {package.status.lower()}")
+        handling = (category or package.category).upper()
+        if handling not in {"STANDARD", "FRAGILE", "MEDICAL", "HIGH_VALUE"}:
+            raise ValueError("category must be STANDARD, FRAGILE, MEDICAL, or HIGH_VALUE")
+        command_priority = package.priority if priority is None else int(priority)
+        if not 1 <= command_priority <= 10:
+            raise ValueError("priority must be between 1 and 10")
+        return package, destination, handling, command_priority
 
     def _build_decision(self, job: Job, event: dict[str, Any]) -> dict[str, Any]:
         winner_id = event["winner"]

@@ -39,12 +39,13 @@ the selected robot. Use **Simulate Robot Failure** during a delivery to watch
 the existing recovery and reauction path. **Scripted Demo** remains available
 in the top command bar as the deterministic backup presentation.
 
-Fleet Command accepts additional packages while robots are moving. Three jobs
-can execute concurrently; further jobs stay visibly queued in scheduler
-priority order and dispatch automatically when an agent becomes free. Use
-**Load Traffic Test** after a reset to submit real priority-3 west-to-east and
-priority-10 east-to-west jobs, demonstrating conflict prediction, priority
-right-of-way, yielding, and resumption without synthetic traffic events.
+Fleet Command supports natural multi-selection: choose several available
+packages, select a shared destination, and dispatch them as separate real jobs
+through `POST /api/jobs/batch`. Three jobs can execute concurrently; further
+jobs stay visibly queued in scheduler priority order and dispatch automatically
+when an agent becomes free. **Select Traffic Test** prepares a real batch for
+the operator to review and dispatch through the same path. The interface also
+includes persistent light and dark themes.
 
 ### Solana Devnet custody attestations
 
@@ -74,7 +75,7 @@ Without the CLI, wallet, balance, or network, the dashboard reports
 ## Tests
 
 ```sh
-uv run --with pytest pytest
+uv run --with pytest python -m pytest
 ```
 
 The test suite covers fleet allocation, navigation, traffic coordination,

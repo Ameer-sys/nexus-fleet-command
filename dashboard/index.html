@@ -3,11 +3,19 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#edf3f7" />
+    <meta id="theme-color" name="theme-color" content="#edf3f7" />
     <title>NEXUS Control Center</title>
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230b1118'/%3E%3Cpath d='M7 24V15h4v9zm7 0V6h4v18zm7 0V11h4v13z' fill='%2349b9cf'/%3E%3C/svg%3E" />
     <link rel="stylesheet" href="/static/styles.css" />
     <link rel="stylesheet" href="/static/premium.css" />
+    <link rel="stylesheet" href="/static/theme.css" />
+    <script>
+      (() => {
+        const saved = localStorage.getItem("nexus-theme");
+        const theme = saved || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.dataset.theme = theme;
+      })();
+    </script>
   </head>
   <body>
     <div class="app-shell">
@@ -28,6 +36,7 @@
           </div>
           <div class="online-chip"><i></i> FLEET ONLINE</div>
           <div id="connection-chip" class="connection-chip">CONNECTING</div>
+          <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Switch to dark mode" aria-pressed="false"><span aria-hidden="true">◐</span><b>LIGHT</b></button>
           <button id="focus-exit-btn" class="focus-exit">EXIT FOCUS</button>
         </div>
       </header>
@@ -35,7 +44,7 @@
       <section class="command-bar" aria-label="Demo controls">
         <div class="controls">
           <button id="fleet-mode-btn" class="button mode active"><svg class="ui-icon"><use href="/static/nexus-icons.svg#i-fleet"/></svg>FLEET COMMAND</button>
-          <button id="traffic-test-btn" class="button traffic-preset"><svg class="ui-icon"><use href="/static/nexus-icons.svg#i-conflict"/></svg>TRAFFIC TEST</button>
+          <button id="traffic-test-btn" class="button traffic-preset"><svg class="ui-icon"><use href="/static/nexus-icons.svg#i-conflict"/></svg>SELECT TRAFFIC TEST</button>
           <button id="start-btn" class="button"><svg class="ui-icon"><use href="/static/nexus-icons.svg#i-analytics"/></svg>SCRIPTED DEMO</button>
           <button id="pause-btn" class="button"><svg class="ui-icon"><use href="/static/nexus-icons.svg#i-pause"/></svg>PAUSE</button>
           <button id="reset-btn" class="button"><svg class="ui-icon"><use href="/static/nexus-icons.svg#i-recovery"/></svg>RESET</button>
@@ -144,6 +153,7 @@
             </svg>
             <div id="map-alert" class="map-alert hidden"></div>
             <div id="map-tooltip" class="map-tooltip hidden" role="tooltip"></div>
+            <div id="selection-float" class="selection-float" aria-live="polite"><b id="selection-float-count">0 ITEMS SELECTED</b><button id="clear-map-selection" type="button">CLEAR</button></div>
           </div>
         </section>
 
@@ -162,11 +172,17 @@
           <article class="command-panel">
             <div class="deck-heading"><span><svg class="ui-icon"><use href="/static/nexus-icons.svg#i-dispatch"/></svg></span><div><small>ISSUE AN OUTCOME</small><h2>FLEET COMMAND</h2></div></div>
             <div id="object-summary" class="object-summary"><b>SELECT A PACKAGE ON THE MAP</b><span>NEXUS will route the fleet.</span></div>
+            <div id="selection-tray" class="selection-tray">
+              <header><span>SELECTED CARGO</span><b id="selection-count">0</b></header>
+              <div id="selected-items" class="selected-items"><p>Choose one or more available packages.</p></div>
+              <button id="clear-selection-btn" class="clear-selection" type="button">CLEAR ALL</button>
+            </div>
             <div class="command-fields">
               <label>DESTINATION<select id="destination-select"><option value="">Select zone…</option></select></label>
-              <label>HANDLING<select id="category-select"><option>STANDARD</option><option>FRAGILE</option><option>MEDICAL</option><option value="HIGH_VALUE">HIGH VALUE</option></select></label>
-              <label class="priority-field">PRIORITY <output id="priority-output">5</output><input id="priority-input" type="range" min="1" max="10" value="5" /></label>
-              <button id="dispatch-btn" class="dispatch-button" disabled><svg class="ui-icon"><use href="/static/nexus-icons.svg#i-dispatch"/></svg>DISPATCH FLEET</button>
+              <div class="profile-preserved"><span>CARGO PROFILES</span><b>PER ITEM · PRESERVED</b></div>
+              <label class="priority-toggle"><input id="priority-override" type="checkbox" /> OVERRIDE BATCH PRIORITY</label>
+              <label class="priority-field">PRIORITY <output id="priority-output">5</output><input id="priority-input" type="range" min="1" max="10" value="5" disabled /></label>
+              <button id="dispatch-btn" class="dispatch-button" disabled><svg class="ui-icon"><use href="/static/nexus-icons.svg#i-dispatch"/></svg>DISPATCH 0 JOBS</button>
             </div>
           </article>
           </section>

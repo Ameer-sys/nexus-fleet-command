@@ -3,10 +3,10 @@ let latest = null;
 let socket = null;
 let pollTimer = null;
 let toastTimer = null;
-let selectedPackageId = null;
+const selectedPackageIds = new Set();
 let selectedDestinationId = null;
-let selectionVersion = null;
 let selectedDecisionJobId = null;
+let lastBatchResult = null;
 let selectedRobotId = null;
 let currentContext = "command";
 let sidebarCollapsed = false;
@@ -18,6 +18,17 @@ const $ = (id) => document.getElementById(id);
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 const esc = (value) => String(value ?? "").replace(/[&<>'"]/g, (char) => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"})[char]);
 const icon = (name) => `<svg class="ui-icon"><use href="/static/nexus-icons.svg#i-${name}"/></svg>`;
+
+function applyTheme(theme) {
+  const normalized = theme === "dark" ? "dark" : "light";
+  document.documentElement.dataset.theme = normalized;
+  localStorage.setItem("nexus-theme", normalized);
+  const dark = normalized === "dark";
+  $("theme-toggle").setAttribute("aria-pressed", String(dark));
+  $("theme-toggle").setAttribute("aria-label", `Switch to ${dark ? "light" : "dark"} mode`);
+  $("theme-toggle").querySelector("b").textContent = dark ? "DARK" : "LIGHT";
+  $("theme-color").content = dark ? "#07111b" : "#edf3f7";
+}
 
 function setButtonLabel(id, iconName, label) {
   $(id).innerHTML = `${icon(iconName)}${esc(label)}`;
@@ -120,12 +131,13 @@ function renderMap(data) {
 
   (data.packages || []).forEach((item) => {
     const [x, y] = point(item.position);
-    const selected = item.package_id === selectedPackageId;
+    const selected = selectedPackageIds.has(item.package_id);
     const job = data.jobs.find((candidate) => candidate.job_id === item.active_job_id);
     const stateText = packageState(item, job);
     const color = {HIGH_VALUE: "#d9b85c", MEDICAL: "#f06f6f", FRAGILE: "#c58ae2", STANDARD: "#6ca6e8"}[item.category] || "#6ca6e8";
     const dimensions = item.category === "FRAGILE" ? {x: -14, y: -20, width: 28, height: 36} : item.category === "HIGH_VALUE" ? {x: -19, y: -16, width: 38, height: 28} : item.category === "MEDICAL" ? {x: -17, y: -17, width: 34, height: 30} : {x: -16, y: -18, width: 32, height: 32};
-    const group = svgElement("g", {class: `package-node category-${item.category.toLowerCase()} state-${item.status.toLowerCase()} ${selected ? "selected" : ""}`, transform: `translate(${x} ${y})`, tabindex: 0, role: "button", "aria-label": `${item.name}, ${item.category}, priority ${item.priority}, ${item.status}`, "data-tooltip-id": item.package_id});
+    const selectable = item.status === "AVAILABLE";
+    const group = svgElement("g", {class: `package-node category-${item.category.toLowerCase()} state-${item.status.toLowerCase()} ${selected ? "selected" : ""} ${selectable ? "selectable" : "locked"}`, transform: `translate(${x} ${y})`, tabindex: selectable ? 0 : -1, role: "button", "aria-pressed": String(selected), "aria-disabled": String(!selectable), "aria-label": `${item.name}, ${item.category}, priority ${item.priority}, ${item.status}`, "data-tooltip-id": item.package_id});
     const title = svgElement("title"); title.textContent = `${item.name}\n${item.category.replace("_", " ")} · Priority ${item.priority}\n${stateText}`; group.append(title);
     if (!["AVAILABLE", "DELIVERED"].includes(item.status)) group.setAttribute("opacity", ".82");
     group.append(svgElement("rect", {...dimensions, fill: "#ffffff", stroke: color, "stroke-width": selected ? 4 : 2, filter: selected ? "url(#soft-glow)" : ""}));
@@ -143,7 +155,15 @@ function renderMap(data) {
     const status = svgElement("text", {x: 0, y: 37, fill: stateColor, "font-size": 5.8, "font-weight": 900, "text-anchor": "middle"}); status.textContent = stateText; group.append(status);
     if (item.status === "DELIVERED") group.append(svgElement("circle", {cx: 17, cy: -17, r: 7, fill: "#dff7ed", stroke: "#159a7a", "stroke-width": 1.5}));
     if (item.status === "DELIVERED") { const check = svgElement("text", {x: 17, y: -14, fill: "#0b7d61", "font-size": 8, "font-weight": 950, "text-anchor": "middle"}); check.textContent = "✓"; group.append(check); }
-    const choose = () => { selectedPackageId = item.package_id; selectionVersion = item.package_id; selectedDestinationId = null; selectedDecisionJobId = null; $("priority-input").value = item.priority; $("category-select").value = item.category; setContext("command"); render(data); };
+    const choose = () => {
+      if (!selectable) { showToast(`${item.package_id} is ${stateText}`); return; }
+      if (selected) selectedPackageIds.delete(item.package_id);
+      else selectedPackageIds.add(item.package_id);
+      selectedDecisionJobId = null;
+      lastBatchResult = null;
+      setContext("command");
+      render(data);
+    };
     group.addEventListener("click", choose); group.addEventListener("keydown", (event) => { if (event.key === "Enter" || event.key === " ") choose(); });
     packageLayer.append(group);
   });
@@ -316,25 +336,44 @@ function renderCommand(data) {
   const options = `<option value="">Select zone…</option>${destinations.map((item) => `<option value="${esc(item.destination_id)}">${esc(item.name.toUpperCase())}</option>`).join("")}`;
   if (select.dataset.mode !== data.simulation.mode) { select.innerHTML = options; select.dataset.mode = data.simulation.mode; }
   select.value = selectedDestinationId || "";
-  const item = (data.packages || []).find((pkg) => pkg.package_id === selectedPackageId);
-  if (item) {
-    $("object-summary").innerHTML = `<b>${esc(item.name.toUpperCase())} <em>${esc(item.package_id)}</em></b><span>${esc(item.location)} · ${esc(item.risk)} RISK · ${esc(item.status)}</span><span>CUSTODY: ${esc(item.current_custodian ? `ROBOT ${item.current_custodian}` : item.previous_custodian ? `PREVIOUS ROBOT ${item.previous_custodian}` : "NONE")}</span>`;
-  } else {
-    $("object-summary").innerHTML = `<b>SELECT A PACKAGE ON THE MAP</b><span>NEXUS decides which robot should move it.</span>`;
+  const packages = data.packages || [];
+  for (const packageId of [...selectedPackageIds]) {
+    const item = packages.find((candidate) => candidate.package_id === packageId);
+    if (!item || item.status !== "AVAILABLE") selectedPackageIds.delete(packageId);
   }
-  if (currentContext === "command") $("context-title").textContent = item ? item.name.toUpperCase() : "FLEET COMMAND";
+  const items = [...selectedPackageIds].map((packageId) => packages.find((item) => item.package_id === packageId)).filter(Boolean);
+  const count = items.length;
+  if (count) {
+    const destination = destinations.find((item) => item.destination_id === selectedDestinationId);
+    $("object-summary").innerHTML = `<b>${count} ITEM${count === 1 ? "" : "S"} READY <em>${destination ? `→ ${esc(destination.name.toUpperCase())}` : "SELECT DESTINATION"}</em></b><span>${esc([...new Set(items.map((item) => item.category.replace("_", " ")))].join(" · "))}</span><span>INDIVIDUAL PROFILES PRESERVED</span>`;
+  } else {
+    $("object-summary").innerHTML = `<b>SELECT PACKAGES ON THE MAP</b><span>NEXUS divides the work across the fleet.</span>`;
+  }
+  $("selection-count").textContent = count;
+  $("selection-float-count").textContent = `${count} ITEM${count === 1 ? "" : "S"} SELECTED`;
+  $("selection-float").classList.toggle("visible", count > 0);
+  $("selected-items").innerHTML = count ? items.map((item) => `<div class="selected-item"><span><b>${esc(item.package_id)}</b><small>${esc(item.category.replace("_", " "))} · P${item.priority}</small></span><button type="button" data-remove-package="${esc(item.package_id)}" aria-label="Remove ${esc(item.package_id)}">×</button></div>`).join("") : `<p>Choose one or more available packages.</p>`;
+  $("clear-selection-btn").disabled = count === 0;
+  if (currentContext === "command") $("context-title").textContent = count ? `${count} CARGO SELECTED` : "FLEET COMMAND";
   $("priority-output").textContent = $("priority-input").value;
-  $("dispatch-btn").disabled = !item || !selectedDestinationId || item.status !== "AVAILABLE" || data.simulation.mode !== "manual";
+  setButtonLabel("dispatch-btn", "dispatch", `DISPATCH ${count} JOB${count === 1 ? "" : "S"}`);
+  $("dispatch-btn").disabled = !count || !selectedDestinationId || data.simulation.mode !== "manual";
 }
 
 function renderDecision(data) {
   const history = data.decision_history || [];
+  if (!selectedDecisionJobId && lastBatchResult) {
+    const batch = lastBatchResult;
+    $("decision-content").className = "decision-content batch-result";
+    $("decision-content").innerHTML = `<div class="batch-result-hero"><span>FLEET DISPATCH</span><b>✓ ${batch.submitted} JOBS SUBMITTED</b><p><strong>${batch.active} ACTIVE</strong><strong>${batch.waiting} WAITING</strong></p></div><div class="batch-result-list">${batch.results.map((item) => `<button type="button" data-decision-job="${esc(item.job_id)}"><span><b>${esc(item.package_id)}</b><small>${esc(item.category.replace("_", " "))} · P${item.priority}</small></span><em>${item.assigned_robot_id ? `ROBOT ${esc(item.assigned_robot_id)} SELECTED` : "QUEUED"}</em><i>VIEW AUCTION ›</i></button>`).join("")}</div>`;
+    return;
+  }
   const decision = selectedDecisionJobId
     ? [...history].reverse().find((item) => item.job_id === selectedDecisionJobId) || data.decision
     : data.decision;
   if (!decision) {
     $("decision-content").className = "decision-content empty";
-    $("decision-content").textContent = "Dispatch a package to compare every eligible robot.";
+    $("decision-content").textContent = "Dispatch selected cargo to compare every eligible robot.";
     return;
   }
   $("decision-content").className = "decision-content";
@@ -397,49 +436,45 @@ async function command(path, successMessage = "Command accepted") {
 }
 
 async function dispatchFleet() {
-  if (!selectedPackageId || !selectedDestinationId) return;
-  const packageId = selectedPackageId;
+  if (!selectedPackageIds.size || !selectedDestinationId) return;
+  const packageIds = [...selectedPackageIds];
   const destinationId = selectedDestinationId;
   try {
-    const response = await fetch("/api/commands/dispatch", {
+    const priority = $("priority-override").checked ? Number($("priority-input").value) : null;
+    const response = await fetch("/api/jobs/batch", {
       method: "POST",
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({
-        package_id: packageId,
-        destination_id: destinationId,
-        category: $("category-select").value,
-        priority: Number($("priority-input").value),
+        items: packageIds.map((packageId) => ({package_id: packageId, destination: destinationId})),
+        priority,
       }),
     });
     const payload = await response.json();
     if (!response.ok) throw new Error(payload.detail || "Dispatch failed");
-    const submitted = [...payload.jobs].reverse().find((job) => job.package_id === packageId && job.status !== "COMPLETED");
-    const winnerBid = payload.decision.winner ? payload.decision.bids.find((bid) => bid.robot_id === payload.decision.winner) : null;
-    const submittedId = submitted?.job_id || payload.decision.job_id || "COMMAND";
-    const feedback = payload.decision.winner && winnerBid ? `NEXUS ASSIGNMENT · ROBOT ${payload.decision.winner} SELECTED · ${winnerBid.components.reliability.value.toFixed(0)}% RELIABILITY · ${winnerBid.components.battery.value.toFixed(0)}% BATTERY` : `${submittedId} ACCEPTED · QUEUED FOR FLEET`;
-    if (selectedPackageId === packageId) selectedPackageId = null;
+    lastBatchResult = payload.batch;
+    selectedPackageIds.clear();
     if (selectedDestinationId === destinationId) selectedDestinationId = null;
     selectedDecisionJobId = null;
-    $("category-select").value = "STANDARD"; $("priority-input").value = 5;
-    setContext("decision"); render(payload); showToast(feedback);
+    $("priority-override").checked = false; $("priority-input").disabled = true; $("priority-input").value = 5;
+    const feedback = `${payload.batch.submitted} JOBS SUBMITTED · ${payload.batch.active} ACTIVE · ${payload.batch.waiting} WAITING`;
+    setContext("decision"); render(payload);
+    showToast(feedback);
   } catch (error) { showToast(error.message); }
 }
 
-async function loadTrafficTest() {
-  try {
-    const commands = [
-      {package_id: "BOX-101", destination_id: "OUTBOUND", category: "STANDARD", priority: 3},
-      {package_id: "FR-301", destination_id: "INBOUND", category: "STANDARD", priority: 10},
-    ];
-    let payload;
-    for (const body of commands) {
-      const response = await fetch("/api/commands/dispatch", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)});
-      payload = await response.json();
-      if (!response.ok) throw new Error(payload.detail || "Traffic test could not be loaded");
-    }
-    selectedPackageId = null; selectedDestinationId = null; selectedDecisionJobId = null;
-    render(payload); showToast("Traffic test loaded · P3 west↔east P10");
-  } catch (error) { showToast(error.message); }
+function selectTrafficTest() {
+  if (!latest || latest.simulation.mode !== "manual") return;
+  selectedPackageIds.clear();
+  ["BOX-101", "MED-KIT-01", "FR-301"].forEach((packageId) => {
+    const item = latest.packages.find((candidate) => candidate.package_id === packageId);
+    if (item?.status === "AVAILABLE") selectedPackageIds.add(packageId);
+  });
+  selectedDestinationId = "OUTBOUND";
+  selectedDecisionJobId = null;
+  lastBatchResult = null;
+  setContext("command");
+  render(latest);
+  showToast(`${selectedPackageIds.size} TRAFFIC-PRONE ITEMS SELECTED · REVIEW AND DISPATCH`);
 }
 
 function setConnection(connected) {
@@ -460,15 +495,31 @@ function connect() {
 }
 
 $("start-btn").addEventListener("click", () => command("/api/demo/start"));
-$("fleet-mode-btn").addEventListener("click", () => { selectedPackageId = null; selectedDestinationId = null; command("/api/demo/fleet"); });
-$("traffic-test-btn").addEventListener("click", loadTrafficTest);
+$("fleet-mode-btn").addEventListener("click", () => { selectedPackageIds.clear(); selectedDestinationId = null; selectedDecisionJobId = null; lastBatchResult = null; command("/api/demo/fleet"); });
+$("traffic-test-btn").addEventListener("click", selectTrafficTest);
 $("pause-btn").addEventListener("click", () => command("/api/demo/pause"));
-$("reset-btn").addEventListener("click", () => command("/api/demo/reset"));
+$("reset-btn").addEventListener("click", () => { selectedPackageIds.clear(); selectedDestinationId = null; selectedDecisionJobId = null; lastBatchResult = null; command("/api/demo/reset"); });
 $("priority-btn").addEventListener("click", () => command("/api/demo/priority"));
 $("failure-btn").addEventListener("click", () => command(`/api/demo/failure/${$("failure-robot").value}`, `ROBOT ${$("failure-robot").value} UNAVAILABLE · RECOVERY INITIATED`));
 $("destination-select").addEventListener("change", (event) => { selectedDestinationId = event.target.value || null; if (latest) render(latest); });
 $("priority-input").addEventListener("input", (event) => { $("priority-output").textContent = event.target.value; });
+$("priority-override").addEventListener("change", (event) => { $("priority-input").disabled = !event.target.checked; });
 $("dispatch-btn").addEventListener("click", dispatchFleet);
+$("clear-selection-btn").addEventListener("click", () => { selectedPackageIds.clear(); if (latest) render(latest); });
+$("clear-map-selection").addEventListener("click", () => { selectedPackageIds.clear(); if (latest) render(latest); });
+$("selected-items").addEventListener("click", (event) => {
+  const button = event.target.closest("[data-remove-package]");
+  if (!button) return;
+  selectedPackageIds.delete(button.dataset.removePackage);
+  if (latest) render(latest);
+});
+$("decision-content").addEventListener("click", (event) => {
+  const button = event.target.closest("[data-decision-job]");
+  if (!button) return;
+  selectedDecisionJobId = button.dataset.decisionJob;
+  if (latest) render(latest);
+});
+$("theme-toggle").addEventListener("click", () => applyTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark"));
 document.querySelectorAll(".context-tab").forEach((tab) => tab.addEventListener("click", () => setContext(tab.dataset.context)));
 $("sidebar-close-btn").addEventListener("click", () => setSidebarCollapsed(true));
 $("context-toggle-btn").addEventListener("click", () => setSidebarCollapsed(!sidebarCollapsed));
@@ -495,4 +546,5 @@ $("warehouse-map").addEventListener("pointermove", (event) => {
   tooltip.style.left = `${left}px`; tooltip.style.top = `${top}px`; tooltip.classList.remove("hidden");
 });
 $("warehouse-map").addEventListener("pointerleave", () => { hoveredPackageId = null; $("map-tooltip").classList.add("hidden"); });
+applyTheme(document.documentElement.dataset.theme);
 poll(); connect();
