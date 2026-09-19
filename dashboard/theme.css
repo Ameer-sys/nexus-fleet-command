@@ -238,6 +238,8 @@ html[data-theme="dark"] .event-drawer,
 html[data-theme="dark"] .event-drawer-bar { border-color: #24394a; background: rgba(8,20,30,.94); color: #dfeaf0; }
 html[data-theme="dark"] .toast { border-color: #2d7182; background: rgba(9,26,38,.97); color: #dff5f8; }
 html[data-theme="dark"] .map-tooltip { border-color: #365869; background: rgba(7,19,28,.97); color: #dbeaf1; box-shadow: 0 12px 26px rgba(0,0,0,.36); }
+html[data-theme="dark"] .warehouse-wrap,
+html[data-theme="dark"] #warehouse-map { background: #091622; }
 html[data-theme="dark"] #warehouse-map > rect:first-of-type { fill: #091622; }
 html[data-theme="dark"] #floor-grid rect:first-child { fill: #10202c; }
 html[data-theme="dark"] #floor-grid rect:nth-child(2),
@@ -258,4 +260,115 @@ html[data-theme="dark"] .scenery-label { fill: #839aa7; }
   .selection-float { top: 8px; max-width: calc(100% - 20px); }
   .batch-result-list button { grid-template-columns: 1fr; }
   .batch-result-list em, .batch-result-list i { grid-column: 1; text-align: left; }
+}
+
+/* Final warehouse-first layout polish. */
+@media (min-width: 1000px) {
+  .topbar { min-height: 50px; padding: 6px 14px; }
+  .brand-mark { width: 34px; height: 34px; padding: 6px; }
+  .brand-subtitle { margin-top: 1px; font-size: 6.5px; }
+  .command-bar { min-height: 38px; padding: 4px 14px; }
+  .button, select { min-height: 27px; }
+  .stat-strip article { padding: 3px 10px; }
+  .stat-strip strong { font-size: 12px; }
+  .stat-strip span { font-size: 6.5px; }
+  .robot-summary { min-height: 30px; }
+  .robot-summary-card { padding: 3px 12px; }
+  .dashboard-grid {
+    grid-template-columns: minmax(0, 1fr) 286px;
+    gap: 5px;
+    padding: 4px;
+  }
+  .map-panel .panel-heading { min-height: 37px; padding: 4px 9px; }
+  .map-panel .panel-heading h2 { font-size: 12px; }
+  .warehouse-wrap { padding: 1px; }
+  .context-header { min-height: 42px; padding: 7px 9px; }
+  .context-tabs { min-height: 30px; }
+  .context-tab { min-height: 30px; }
+  .command-panel, .decision-panel, .robot-detail-panel { padding: 9px; }
+  .event-drawer { max-height: 28px; }
+  .event-drawer.expanded { max-height: 180px; }
+  .event-drawer-bar { min-height: 27px; padding: 0 12px; }
+  .event-drawer .event-list { height: 151px; padding-bottom: 8px; }
+}
+
+.map-alert {
+  top: 10px;
+  right: 10px;
+  left: auto;
+  width: min(248px, calc(100% - 20px));
+  min-width: 0;
+  display: grid;
+  gap: 6px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: inherit;
+  text-align: left;
+  transform: none;
+  pointer-events: auto;
+  cursor: pointer;
+  transition: width .18s ease, opacity .18s ease;
+}
+.traffic-alert-card {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px 8px;
+  padding: 9px 10px;
+  border: 1px solid rgba(224,173,76,.58);
+  border-radius: 10px;
+  background: rgba(255,249,234,.95);
+  color: #7e5310;
+  box-shadow: 0 10px 24px rgba(79,56,19,.14), inset 0 1px rgba(255,255,255,.88);
+  backdrop-filter: blur(14px);
+  line-height: 1.25;
+}
+.traffic-alert-card.secondary { opacity: .92; transform: translateX(-8px); }
+.traffic-alert-card b {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 5px;
+  color: #81520a;
+  font-size: 8px;
+  letter-spacing: .075em;
+}
+.traffic-alert-card span { min-width: 0; overflow: hidden; color: #805f2e; font: 6.8px ui-monospace, monospace; text-overflow: ellipsis; white-space: nowrap; }
+.traffic-alert-card span em { color: #1b6f9d; font-style: normal; font-weight: 950; }
+.traffic-alert-card strong { grid-column: 1 / -1; margin-top: 2px; color: #6f4607; font: 950 9px ui-monospace, monospace; letter-spacing: .03em; }
+.traffic-alert-card small { grid-column: 1 / -1; color: #9a702f; font-size: 6.5px; text-transform: capitalize; }
+.map-alert.minimized { width: auto; opacity: .9; }
+.map-alert.minimized .traffic-alert-card:not(:first-child),
+.map-alert.minimized .traffic-alert-card span,
+.map-alert.minimized .traffic-alert-card strong,
+.map-alert.minimized .traffic-alert-card small { display: none; }
+.map-alert.minimized .traffic-alert-card:first-child { display: block; padding: 7px 9px; }
+.map-alert.minimized .traffic-alert-card b::after { content: " · TAP TO EXPAND"; color: #aa7b32; font-size: 5.7px; }
+
+html[data-theme="dark"] .traffic-alert-card {
+  border-color: rgba(212,153,51,.55);
+  background: rgba(35,29,20,.94);
+  color: #f4c66f;
+  box-shadow: 0 12px 28px rgba(0,0,0,.3), inset 0 1px rgba(255,255,255,.05);
+}
+html[data-theme="dark"] .traffic-alert-card b,
+html[data-theme="dark"] .traffic-alert-card strong { color: #f4bf5b; }
+html[data-theme="dark"] .traffic-alert-card span { color: #d7bb87; }
+html[data-theme="dark"] .traffic-alert-card span em { color: #66c9f2; }
+html[data-theme="dark"] .traffic-alert-card small { color: #bfa36f; }
+
+.focus-mode .app-shell { grid-template-rows: auto minmax(0, 1fr); }
+.focus-mode .robot-summary { display: none; }
+.focus-mode .dashboard-grid { padding: 2px; }
+.focus-mode .map-panel .panel-heading { min-height: 32px; padding-block: 3px; }
+.focus-mode .warehouse-wrap { padding: 0; }
+.focus-mode .map-alert { top: 8px; right: 8px; width: min(224px, calc(100% - 16px)); }
+.focus-mode .traffic-alert-card { padding: 7px 9px; }
+
+@media (max-width: 999px) {
+  .map-alert { top: 8px; right: 8px; width: min(228px, calc(100% - 16px)); }
+  .traffic-alert-card.secondary { transform: none; }
 }

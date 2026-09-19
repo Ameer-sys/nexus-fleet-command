@@ -13,6 +13,10 @@ let sidebarCollapsed = false;
 let lastFocusEventKey = null;
 let focusEventsReady = false;
 let hoveredPackageId = null;
+let lastTrafficAlertKey = null;
+let trafficAlertTimer = null;
+let trafficAlertExpandedUntil = 0;
+let trafficIdleResetTimer = null;
 
 const $ = (id) => document.getElementById(id);
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
@@ -219,16 +223,38 @@ function renderMap(data) {
 
   const alert = $("map-alert");
   if (data.conflicts.length) {
-    const conflict = data.conflicts[0];
-    const details = [conflict.robot_a, conflict.robot_b].map((robotId) => {
-      const robot = data.robots.find((item) => item.id === robotId);
-      const job = data.jobs.find((item) => item.job_id === robot?.job_id);
-      const cargo = data.packages.find((item) => item.package_id === job?.package_id);
-      return `ROBOT ${robotId} · ${cargo?.name || job?.package_id || "EMPTY"} · P${job?.priority ?? "—"}`;
-    });
-    alert.innerHTML = `<b>${icon("conflict")} NEXUS TRAFFIC DECISION</b><span>${esc(details[0])}</span><span>${esc(details[1])}</span><strong>ROBOT ${esc(conflict.right_of_way)} HAS RIGHT OF WAY</strong><small>${esc(conflict.yielding_robot)} YIELDING · ${esc(conflict.reason)} · ${conflict.predicted_distance.toFixed(2)}m SEPARATION</small>`;
+    clearTimeout(trafficIdleResetTimer);
+    trafficIdleResetTimer = null;
+    const now = Date.now();
+    const conflictKey = data.conflicts.map((conflict) => `${conflict.robot_a}:${conflict.robot_b}:${conflict.right_of_way}:${conflict.yielding_robot}`).join("|");
+    if (lastTrafficAlertKey === null) {
+      trafficAlertExpandedUntil = now + 4800;
+      clearTimeout(trafficAlertTimer);
+      trafficAlertTimer = setTimeout(() => alert.classList.add("minimized"), 4800);
+    }
+    lastTrafficAlertKey = conflictKey;
+    alert.classList.toggle("minimized", now >= trafficAlertExpandedUntil);
+    alert.innerHTML = data.conflicts.slice(0, 2).map((conflict, index) => {
+      const details = [conflict.robot_a, conflict.robot_b].map((robotId) => {
+        const robot = data.robots.find((item) => item.id === robotId);
+        const job = data.jobs.find((item) => item.job_id === robot?.job_id);
+        const cargo = data.packages.find((item) => item.package_id === job?.package_id);
+        return {robotId, cargo: cargo?.name || job?.package_id || "Empty", priority: job?.priority ?? "—"};
+      });
+      return `<article class="traffic-alert-card ${index ? "secondary" : ""}"><b>${icon("conflict")} NEXUS TRAFFIC DECISION</b><span><em>${esc(details[0].robotId)}</em> ${esc(details[0].cargo)} · P${esc(details[0].priority)}</span><span><em>${esc(details[1].robotId)}</em> ${esc(details[1].cargo)} · P${esc(details[1].priority)}</span><strong>${esc(conflict.right_of_way)} HAS RIGHT OF WAY</strong><small>${esc(conflict.reason)} · ${esc(conflict.yielding_robot)} yielding · ${conflict.predicted_distance.toFixed(2)}m</small></article>`;
+    }).join("");
     alert.classList.remove("hidden");
-  } else alert.classList.add("hidden");
+  } else {
+    alert.classList.add("hidden");
+    if (!trafficIdleResetTimer) {
+      trafficIdleResetTimer = setTimeout(() => {
+        lastTrafficAlertKey = null;
+        trafficAlertExpandedUntil = 0;
+        alert.classList.remove("minimized");
+        trafficIdleResetTimer = null;
+      }, 2000);
+    }
+  }
 }
 
 function renderRobots(data) {
@@ -546,5 +572,13 @@ $("warehouse-map").addEventListener("pointermove", (event) => {
   tooltip.style.left = `${left}px`; tooltip.style.top = `${top}px`; tooltip.classList.remove("hidden");
 });
 $("warehouse-map").addEventListener("pointerleave", () => { hoveredPackageId = null; $("map-tooltip").classList.add("hidden"); });
+$("map-alert").addEventListener("click", () => {
+  const minimized = $("map-alert").classList.toggle("minimized");
+  clearTimeout(trafficAlertTimer);
+  if (!minimized) {
+    trafficAlertExpandedUntil = Date.now() + 4800;
+    trafficAlertTimer = setTimeout(() => $("map-alert").classList.add("minimized"), 4800);
+  }
+});
 applyTheme(document.documentElement.dataset.theme);
 poll(); connect();
