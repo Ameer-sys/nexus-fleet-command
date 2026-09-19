@@ -5,6 +5,7 @@ description = "Local MuJoCo playback for BracketBot balance policies"
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
 dependencies = [
+    "fastapi[standard-no-fastapi-cloud-cli]>=0.115,<1",
     "glfw==2.10.2",
     "mujoco==3.8.1",
     "numpy==2.5.3",

@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#edf3f7" />
+    <title>NEXUS Control Center</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230b1118'/%3E%3Cpath d='M7 24V15h4v9zm7 0V6h4v18zm7 0V11h4v13z' fill='%2349b9cf'/%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="/static/styles.css" />
+    <link rel="stylesheet" href="/static/premium.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand-block">
+          <div class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 40 40"><path d="M8 29V11L20 24V11M32 11V29L20 16V29" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="8" cy="11" r="2.4" fill="#fff"/><circle cx="32" cy="29" r="2.4" fill="#fff"/></svg>
+          </div>
+          <div>
+            <h1>NEXUS</h1>
+            <div class="brand-subtitle">AUTONOMOUS FLEET INTELLIGENCE · CONTROL CENTER</div>
+          </div>
+        </div>
+        <div class="system-cluster">
+          <div class="phase-block">
+            <span class="eyebrow">CURRENT PHASE</span>
+            <strong id="phase-label">READY</strong>
+          </div>
+          <div class="online-chip"><i></i> FLEET ONLINE</div>
+          <div id="connection-chip" class="connection-chip">CONNECTING</div>
+          <button id="focus-exit-btn" class="focus-exit">EXIT FOCUS</button>
+        </div>
+      </header>
+
+      <section class="command-bar" aria-label="Demo controls">
+        <div class="controls">
+          <button id="fleet-mode-btn" class="button mode active"><svg class="ui-icon"><use href="/static/nexus-icons.svg#i-fleet"/></svg>FLEET COMMAND</button>
+          <button id="traffic-test-btn" class="button traffic-preset"><svg class="ui-icon"><use href="/static/nexus-icons.svg#i-conflict"/></svg>TRAFFIC TEST</button>
+          <button id="start-btn" class="button"><svg class="ui-icon"><use href="/static/nexus-icons.svg#i-analytics"/></svg>SCRIPTED DEMO</button>
+          <button id="pause-btn" class="button"><svg class="ui-icon"><use href="/static/nexus-icons.svg#i-pause"/></svg>PAUSE</button>
+          <button id="reset-btn" class="button"><svg class="ui-icon"><use href="/static/nexus-icons.svg#i-recovery"/></svg>RESET</button>
+          <span class="control-divider"></span>
+          <button id="priority-btn" class="button priority scripted-only"><svg class="ui-icon"><use href="/static/nexus-icons.svg#i-priority"/></svg>INJECT PRIORITY</button>
+          <select id="failure-robot" aria-label="Robot to mark unavailable">
+            <option value="C">ROBOT C</option>
+            <option value="A">ROBOT A</option>
+            <option value="B">ROBOT B</option>
+          </select>
+          <button id="failure-btn" class="button danger"><svg class="ui-icon"><use href="/static/nexus-icons.svg#i-failure"/></svg>INJECT FAILURE</button>
+          <button id="focus-btn" class="button focus-button"><svg class="ui-icon"><use href="/static/nexus-icons.svg#i-focus"/></svg>EXPAND WAREHOUSE</button>
+        </div>
+        <div class="sim-clock">
+          <span>TICK <b id="tick-value">0</b></span>
+          <span>SIM <b id="time-value">0.00s</b></span>
+          <span>SPEED <b id="speed-value">0.65×</b></span>
+        </div>
+      </section>
+
+      <section class="stat-strip" aria-label="Fleet statistics">
+        <article><span>ROBOTS ONLINE</span><strong id="stat-online">3 / 3</strong></article>
+        <article><span>ACTIVE JOBS</span><strong id="stat-active">0</strong></article>
+        <article><span>PENDING JOBS</span><strong id="stat-pending">0</strong></article>
+        <article><span>COMPLETED JOBS</span><strong id="stat-complete">0</strong></article>
+        <article><span>ROBOTS BUSY</span><strong id="stat-busy">0</strong></article>
+        <article><span>ROBOTS AVAILABLE</span><strong id="stat-available">3</strong></article>
+        <article><span>CONFLICTS PREVENTED</span><strong id="stat-conflicts">0</strong></article>
+        <article><span>REASSIGNMENTS</span><strong id="stat-reassignments">0</strong></article>
+      </section>
+
+      <section id="robot-summary" class="robot-summary" aria-label="Robot status summary"></section>
+
+      <main class="dashboard-grid">
+        <section class="panel map-panel">
+          <div class="panel-heading">
+            <div>
+              <span class="eyebrow">LIVE TELEMETRY</span>
+              <h2>WAREHOUSE MAP</h2>
+            </div>
+            <div class="map-legend">
+              <span><i class="legend-dot active"></i>ACTIVE</span>
+              <span><i class="legend-dot yielding"></i>YIELDING</span>
+              <span><i class="legend-dot unavailable"></i>UNAVAILABLE</span>
+              <span><i class="legend-line"></i>PLANNED ROUTE</span>
+            </div>
+            <div class="map-actions">
+              <button id="context-toggle-btn" class="icon-button" aria-label="Toggle contextual sidebar">CONTEXT ◀</button>
+            </div>
+          </div>
+          <div class="warehouse-wrap">
+            <svg id="warehouse-map" viewBox="0 0 1000 680" role="img" aria-label="Live top-down warehouse map">
+              <defs>
+                <pattern id="floor-grid" width="50" height="50" patternUnits="userSpaceOnUse">
+                  <rect width="50" height="50" fill="#edf3f6" />
+                  <rect width="25" height="25" fill="#e7eff3" /><rect x="25" y="25" width="25" height="25" fill="#e7eff3" />
+                  <path d="M 50 0 L 0 0 0 50" fill="none" stroke="#d3e0e6" stroke-width="1" />
+                </pattern>
+                <pattern id="safety-stripe" width="16" height="16" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                  <rect width="8" height="16" fill="#72541d" /><rect x="8" width="8" height="16" fill="#171b1d" />
+                </pattern>
+                <marker id="route-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                  <path d="M 0 0 L 10 5 L 0 10 z" fill="context-stroke" />
+                </marker>
+                <filter id="soft-glow"><feGaussianBlur stdDeviation="3" result="blur" /><feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
+              </defs>
+              <rect x="0" y="0" width="1000" height="680" fill="#f7fafc" />
+              <rect x="62" y="46" width="876" height="584" rx="14" fill="url(#floor-grid)" stroke="#b9ccd5" stroke-width="2" />
+              <g class="warehouse-scenery" aria-hidden="true">
+                <path class="safety-line" d="M205 105H382V575H205ZM618 105H795V575H618Z" />
+                <g class="conveyor" transform="translate(76 245)">
+                  <rect width="112" height="50" rx="3" /><path d="M12 5V45M30 5V45M48 5V45M66 5V45M84 5V45M102 5V45" />
+                  <text x="56" y="-8">INBOUND CONVEYOR</text>
+                </g>
+                <g class="conveyor" transform="translate(812 385)">
+                  <rect width="112" height="50" rx="3" /><path d="M12 5V45M30 5V45M48 5V45M66 5V45M84 5V45M102 5V45" />
+                  <text x="56" y="-8">OUTBOUND CONVEYOR</text>
+                </g>
+                <g class="pallet-stack" transform="translate(98 455)"><rect y="24" width="68" height="8"/><rect x="5" y="10" width="25" height="14"/><rect x="36" width="27" height="24"/><text x="34" y="44">PALLETS</text></g>
+                <g class="pallet-stack" transform="translate(834 105)"><rect y="24" width="68" height="8"/><rect x="5" y="4" width="28" height="20"/><rect x="39" y="12" width="24" height="12"/><text x="34" y="44">PALLETS</text></g>
+                <g class="packing-station" transform="translate(565 522)"><rect width="116" height="58" rx="4"/><rect x="10" y="10" width="42" height="32"/><path d="M65 17H105M65 27H105M65 37H92"/><text x="58" y="72">PACKING STATION</text></g>
+                <g class="charging-station" transform="translate(436 576)"><rect width="50" height="31" rx="4"/><path d="M28 5L18 17H27L22 27L36 13H27Z"/><text x="25" y="43">CHARGE A</text></g>
+                <g class="charging-station" transform="translate(514 576)"><rect width="50" height="31" rx="4"/><path d="M28 5L18 17H27L22 27L36 13H27Z"/><text x="25" y="43">CHARGE B</text></g>
+                <path class="barrier" d="M72 115h68m720 450h68M455 52v30m90-30v30" />
+                <rect class="safety-pad" x="448" y="322" width="104" height="36" rx="3" />
+                <text class="scenery-label" x="500" y="344">ASSEMBLY CROSSING</text>
+              </g>
+              <g class="warehouse-fixtures" aria-hidden="true">
+                <rect x="240" y="132" width="112" height="190" rx="4" />
+                <rect x="240" y="368" width="112" height="190" rx="4" />
+                <rect x="648" y="132" width="112" height="190" rx="4" />
+                <rect x="648" y="368" width="112" height="190" rx="4" />
+                <text x="296" y="226">RACK 01</text><text x="296" y="462">RACK 02</text>
+                <text x="704" y="226">RACK 03</text><text x="704" y="462">RACK 04</text>
+                <path d="M 500 58 V 618" class="aisle-line" />
+                <path d="M 74 340 H 926" class="aisle-line" />
+                <text x="78" y="74" class="zone-label">ZONE NORTH</text>
+                <text x="78" y="612" class="zone-label">ZONE SOUTH</text>
+              </g>
+              <g id="destination-layer"></g>
+              <g id="job-layer"></g>
+              <g id="package-layer"></g>
+              <g id="route-layer"></g>
+              <g id="conflict-layer"></g>
+              <g id="robot-layer"></g>
+            </svg>
+            <div id="map-alert" class="map-alert hidden"></div>
+            <div id="map-tooltip" class="map-tooltip hidden" role="tooltip"></div>
+          </div>
+        </section>
+
+        <aside id="context-sidebar" class="panel context-sidebar" aria-label="Contextual controls">
+          <header class="context-header">
+            <div><span class="eyebrow">SELECTED CONTEXT</span><h2 id="context-title">FLEET COMMAND</h2></div>
+            <button id="sidebar-close-btn" class="icon-button" aria-label="Minimize contextual sidebar">MINIMIZE ›</button>
+          </header>
+          <nav class="context-tabs" aria-label="Context views">
+            <button class="context-tab active" data-context="command">COMMAND</button>
+            <button class="context-tab" data-context="tasks">TASKS</button>
+            <button class="context-tab" data-context="custody">CUSTODY</button>
+          </nav>
+
+          <section id="command-view" class="context-view active" data-view="command">
+          <article class="command-panel">
+            <div class="deck-heading"><span><svg class="ui-icon"><use href="/static/nexus-icons.svg#i-dispatch"/></svg></span><div><small>ISSUE AN OUTCOME</small><h2>FLEET COMMAND</h2></div></div>
+            <div id="object-summary" class="object-summary"><b>SELECT A PACKAGE ON THE MAP</b><span>NEXUS will route the fleet.</span></div>
+            <div class="command-fields">
+              <label>DESTINATION<select id="destination-select"><option value="">Select zone…</option></select></label>
+              <label>HANDLING<select id="category-select"><option>STANDARD</option><option>FRAGILE</option><option>MEDICAL</option><option value="HIGH_VALUE">HIGH VALUE</option></select></label>
+              <label class="priority-field">PRIORITY <output id="priority-output">5</output><input id="priority-input" type="range" min="1" max="10" value="5" /></label>
+              <button id="dispatch-btn" class="dispatch-button" disabled><svg class="ui-icon"><use href="/static/nexus-icons.svg#i-dispatch"/></svg>DISPATCH FLEET</button>
+            </div>
+          </article>
+          </section>
+
+          <section id="robot-view" class="context-view" data-view="robot">
+            <article class="robot-detail-panel">
+              <div class="deck-heading"><span><svg class="ui-icon"><use href="/static/nexus-icons.svg#i-fleet"/></svg></span><div><small>LIVE UNIT TELEMETRY</small><h2>ROBOT DETAILS</h2></div></div>
+              <div id="robot-detail" class="robot-detail"></div>
+            </article>
+          </section>
+
+          <section id="decision-view" class="context-view" data-view="decision">
+          <article class="decision-panel">
+            <div class="deck-heading"><span><svg class="ui-icon"><use href="/static/nexus-icons.svg#i-analytics"/></svg></span><div><small>EXPLAINABLE DISPATCH</small><h2>NEXUS DECISION</h2></div></div>
+            <div id="decision-content" class="decision-content empty">Dispatch a package to compare every eligible robot.</div>
+          </article>
+          </section>
+
+          <section id="tasks-view" class="context-view" data-view="tasks">
+          <article class="jobs-panel">
+            <div class="panel-heading small"><div><span class="eyebrow">OPERATIONS</span><h2>FLEET TASKS</h2></div><span id="job-count" class="count-badge">0 JOBS</span></div>
+            <div id="job-list" class="job-list"></div>
+          </article>
+          </section>
+
+          <section id="custody-view" class="context-view" data-view="custody">
+          <article class="custody-panel">
+            <div class="panel-heading small">
+              <div><span class="eyebrow">SOLANA DEVNET</span><h2>VERIFIED CUSTODY</h2></div>
+              <span id="custody-state" class="chain-badge offline">OFFLINE</span>
+            </div>
+            <div id="custody-summary" class="custody-summary">OFFLINE / DEMO CONTINUES</div>
+            <div id="custody-list" class="custody-list"></div>
+          </article>
+          </section>
+        </aside>
+      </main>
+
+      <section id="event-drawer" class="event-drawer" aria-label="Event stream">
+        <button id="event-drawer-toggle" class="event-drawer-bar" aria-expanded="false">
+          <span class="live-label"><i></i> EVENTS <b id="event-drawer-arrow">▴</b></span>
+          <span id="latest-event" class="latest-event">Latest: Waiting for fleet telemetry</span>
+          <span class="event-count" id="event-count">0 EVENTS</span>
+        </button>
+        <div id="event-list" class="event-list" aria-live="polite"></div>
+      </section>
+      <div id="toast" class="toast" role="status"></div>
+    </div>
+    <script src="/static/app.js"></script>
+  </body>
+</html>
