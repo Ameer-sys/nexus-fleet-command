@@ -74,7 +74,7 @@ Without the CLI, wallet, balance, or network, the dashboard reports
 ## Tests
 
 ```sh
-uv run pytest
+uv run --with pytest pytest
 ```
 
 The test suite covers fleet allocation, navigation, traffic coordination,
