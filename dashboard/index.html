@@ -20,54 +20,75 @@
   <body>
     <div class="app-shell">
       <header class="topbar">
-        <div class="brand-block">
+        <div class="topbar-leading">
+          <button id="nav-menu-btn" class="header-icon-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+          <div class="brand-block">
           <img class="brand-mark" src="/static/assets/nexus-mark.svg" alt="" />
           <div>
             <h1>NEXUS</h1>
             <div class="brand-subtitle">AUTONOMOUS FLEET INTELLIGENCE · CONTROL CENTER</div>
           </div>
+          </div>
+        </div>
+        <div class="mode-switch" aria-label="Operating mode">
+          <button id="fleet-mode-btn" class="mode-option active" type="button"><svg class="ui-icon"><use href="/static/nexus-icons.svg#i-fleet"/></svg>Fleet Command</button>
+          <button id="start-btn" class="mode-option" type="button"><svg class="ui-icon"><use href="/static/nexus-icons.svg#i-analytics"/></svg>Scripted Demo</button>
         </div>
         <div class="system-cluster">
-          <div class="phase-block">
-            <span class="eyebrow">CURRENT PHASE</span>
-            <strong id="phase-label">READY</strong>
-          </div>
-          <div class="online-chip"><i></i> FLEET ONLINE</div>
-          <div id="connection-chip" class="connection-chip">CONNECTING</div>
-          <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Switch to dark mode" aria-pressed="false"><span aria-hidden="true">◐</span><b>LIGHT</b></button>
+          <div id="fleet-status-chip" class="online-chip"><i></i> 3 ROBOTS ONLINE</div>
+          <button id="focus-btn" class="header-icon-button focus-header" type="button" aria-label="Expand warehouse" title="Expand warehouse"><svg class="ui-icon"><use href="/static/nexus-icons.svg#i-focus"/></svg></button>
+          <button id="demo-tools-btn" class="demo-tools-trigger" type="button" aria-expanded="false" aria-controls="demo-tools-menu">Demo Tools <span>⋯</span></button>
           <button id="focus-exit-btn" class="focus-exit">EXIT FOCUS</button>
         </div>
       </header>
 
-      <section class="command-bar" aria-label="Demo controls">
-        <nav class="workspace-nav" aria-label="Workspace sections">
-          <button class="workspace-nav-button active" data-nav-context="command">Overview</button>
-          <button class="workspace-nav-button" data-nav-context="robot">Fleet</button>
-          <button class="workspace-nav-button" data-nav-context="tasks">Tasks</button>
-          <button class="workspace-nav-button" data-nav-context="inventory">Inventory</button>
-          <button id="nav-events-btn" class="workspace-nav-button">Events</button>
-          <button class="workspace-nav-button" data-nav-context="custody">System</button>
-        </nav>
-        <div class="controls">
-          <button id="fleet-mode-btn" class="button mode active"><svg class="ui-icon"><use href="/static/nexus-icons.svg#i-fleet"/></svg>FLEET COMMAND</button>
-          <button id="traffic-test-btn" class="button traffic-preset"><svg class="ui-icon"><use href="/static/nexus-icons.svg#i-conflict"/></svg>SELECT TRAFFIC TEST</button>
-          <button id="start-btn" class="button"><svg class="ui-icon"><use href="/static/nexus-icons.svg#i-analytics"/></svg>SCRIPTED DEMO</button>
-          <button id="pause-btn" class="button"><svg class="ui-icon"><use href="/static/nexus-icons.svg#i-pause"/></svg>PAUSE</button>
-          <button id="reset-btn" class="button"><svg class="ui-icon"><use href="/static/nexus-icons.svg#i-recovery"/></svg>RESET</button>
-          <span class="control-divider"></span>
-          <button id="priority-btn" class="button priority scripted-only"><svg class="ui-icon"><use href="/static/nexus-icons.svg#i-priority"/></svg>INJECT PRIORITY</button>
-          <select id="failure-robot" aria-label="Robot to mark unavailable">
-            <option value="C">ROBOT C</option>
-            <option value="A">ROBOT A</option>
-            <option value="B">ROBOT B</option>
-          </select>
-          <button id="failure-btn" class="button danger"><svg class="ui-icon"><use href="/static/nexus-icons.svg#i-failure"/></svg>INJECT FAILURE</button>
-          <button id="focus-btn" class="button focus-button"><svg class="ui-icon"><use href="/static/nexus-icons.svg#i-focus"/></svg>EXPAND WAREHOUSE</button>
+      <aside id="nav-drawer" class="nav-drawer" aria-label="NEXUS navigation" aria-hidden="true">
+        <div class="nav-drawer-scrim" data-close-nav></div>
+        <div class="nav-drawer-panel">
+          <header><img src="/static/assets/nexus-mark.svg" alt=""/><div><b>NEXUS</b><span>Operations</span></div><button id="nav-close-btn" type="button" aria-label="Close navigation">×</button></header>
+          <nav>
+            <button class="nav-drawer-button active" data-nav-context="command"><span>⌂</span>Overview</button>
+            <button class="nav-drawer-button" data-nav-context="robot"><span>◫</span>Fleet</button>
+            <button class="nav-drawer-button" data-nav-context="tasks"><span>✓</span>Tasks</button>
+            <button class="nav-drawer-button" data-nav-context="inventory"><span>◇</span>Inventory</button>
+            <button id="nav-events-btn" class="nav-drawer-button"><span>≡</span>Events</button>
+            <button class="nav-drawer-button" data-nav-context="custody"><span>⚙</span>System</button>
+          </nav>
         </div>
-        <div class="sim-clock">
-          <span>TICK <b id="tick-value">0</b></span>
-          <span>SIM <b id="time-value">0.00s</b></span>
-          <span>SPEED <b id="speed-value">0.65×</b></span>
+      </aside>
+
+      <section id="demo-tools-menu" class="demo-tools-menu" aria-label="Demo tools" aria-hidden="true">
+        <header><div><span class="eyebrow">SECONDARY CONTROLS</span><h2>Demo Tools</h2></div><button id="demo-tools-close" type="button" aria-label="Close demo tools">×</button></header>
+        <div class="demo-tools-body">
+          <section>
+            <h3>Simulation</h3>
+            <div class="demo-tool-grid">
+              <button id="traffic-test-btn" class="button traffic-preset"><svg class="ui-icon"><use href="/static/nexus-icons.svg#i-conflict"/></svg>Run Traffic Test</button>
+              <button id="pause-btn" class="button"><svg class="ui-icon"><use href="/static/nexus-icons.svg#i-pause"/></svg>Pause Simulation</button>
+              <button id="reset-btn" class="button"><svg class="ui-icon"><use href="/static/nexus-icons.svg#i-recovery"/></svg>Reset Warehouse</button>
+              <button id="priority-btn" class="button priority scripted-only"><svg class="ui-icon"><use href="/static/nexus-icons.svg#i-priority"/></svg>Inject Priority</button>
+            </div>
+          </section>
+          <details class="failure-testing">
+            <summary>Failure Testing <span>›</span></summary>
+            <div class="failure-controls">
+              <label>Robot<select id="failure-robot" aria-label="Robot to mark unavailable">
+                <option value="C">Robot C</option><option value="A">Robot A</option><option value="B">Robot B</option>
+              </select></label>
+              <button id="failure-btn" class="button danger"><svg class="ui-icon"><use href="/static/nexus-icons.svg#i-failure"/></svg>Inject Failure</button>
+            </div>
+          </details>
+          <details class="simulation-details">
+            <summary>Simulation Details <span>›</span></summary>
+            <dl>
+              <dt>Phase</dt><dd id="phase-label">READY</dd>
+              <dt>Connection</dt><dd id="connection-chip">CONNECTING</dd>
+              <dt>Tick</dt><dd id="tick-value">0</dd>
+              <dt>Simulation time</dt><dd id="time-value">0.00s</dd>
+              <dt>Speed</dt><dd id="speed-value">0.65×</dd>
+            </dl>
+          </details>
+          <button id="theme-toggle" class="theme-menu-button" type="button" aria-label="Switch to dark mode" aria-pressed="false"><span aria-hidden="true">◐</span><b>LIGHT</b> APPEARANCE</button>
         </div>
       </section>
 
@@ -167,14 +188,6 @@
             <div><span class="eyebrow">SELECTED CONTEXT</span><h2 id="context-title">FLEET COMMAND</h2></div>
             <button id="sidebar-close-btn" class="icon-button" aria-label="Minimize contextual sidebar">MINIMIZE ›</button>
           </header>
-          <nav class="context-tabs" aria-label="Context views">
-            <button class="context-tab active" data-context="command">Overview</button>
-            <button class="context-tab" data-context="robot">Fleet</button>
-            <button class="context-tab" data-context="tasks">Tasks</button>
-            <button class="context-tab" data-context="inventory">Inventory</button>
-            <button class="context-tab" data-context="custody">System</button>
-          </nav>
-
           <section id="command-view" class="context-view active" data-view="command">
           <article class="command-panel">
             <div class="deck-heading"><span><svg class="ui-icon"><use href="/static/nexus-icons.svg#i-dispatch"/></svg></span><div><small>ISSUE AN OUTCOME</small><h2>FLEET COMMAND</h2></div></div>

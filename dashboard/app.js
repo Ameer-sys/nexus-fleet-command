@@ -9,7 +9,7 @@ let selectedDecisionJobId = null;
 let lastBatchResult = null;
 let selectedRobotId = null;
 let currentContext = "command";
-let sidebarCollapsed = false;
+let sidebarCollapsed = true;
 let lastFocusEventKey = null;
 let focusEventsReady = false;
 let hoveredPackageId = null;
@@ -108,14 +108,32 @@ function setContext(context, open = true) {
   $("context-title").textContent = contextTitles[context] || "NEXUS CONTEXT";
   document.querySelectorAll(".context-view").forEach((view) => view.classList.toggle("active", view.dataset.view === context));
   document.querySelectorAll(".context-tab").forEach((tab) => tab.classList.toggle("active", tab.dataset.context === context));
-  document.querySelectorAll(".workspace-nav-button[data-nav-context]").forEach((tab) => tab.classList.toggle("active", tab.dataset.navContext === context));
+  document.querySelectorAll(".nav-drawer-button[data-nav-context]").forEach((tab) => tab.classList.toggle("active", tab.dataset.navContext === context));
   if (open) setSidebarCollapsed(false);
+  setNavDrawer(false);
+}
+
+function setNavDrawer(open) {
+  const drawer = $("nav-drawer");
+  drawer.classList.toggle("open", open);
+  drawer.setAttribute("aria-hidden", String(!open));
+  $("nav-menu-btn").setAttribute("aria-expanded", String(open));
+}
+
+function setDemoTools(open) {
+  const menu = $("demo-tools-menu");
+  menu.classList.toggle("open", open);
+  menu.setAttribute("aria-hidden", String(!open));
+  $("demo-tools-btn").setAttribute("aria-expanded", String(open));
 }
 
 function toggleFocus(force) {
   const enabled = typeof force === "boolean" ? force : !document.body.classList.contains("focus-mode");
   document.body.classList.toggle("focus-mode", enabled);
-  setButtonLabel("focus-btn", "focus", enabled ? "EXIT FOCUS" : "EXPAND WAREHOUSE");
+  $("focus-btn").setAttribute("aria-label", enabled ? "Exit warehouse focus" : "Expand warehouse");
+  $("focus-btn").title = enabled ? "Exit warehouse focus" : "Expand warehouse";
+  setDemoTools(false);
+  setNavDrawer(false);
   if (!enabled) setSidebarCollapsed(sidebarCollapsed);
 }
 
@@ -476,9 +494,11 @@ function render(data) {
   $("stat-available").textContent = stats.robots_available;
   $("stat-conflicts").textContent = stats.traffic_conflicts_prevented;
   $("stat-reassignments").textContent = stats.automatic_reassignments;
-  setButtonLabel("start-btn", "analytics", sim.mode === "scripted" && sim.running ? "SCRIPTED RUNNING" : "SCRIPTED DEMO");
+  setButtonLabel("start-btn", "analytics", sim.mode === "scripted" && sim.running ? "Scripted Running" : "Scripted Demo");
   $("start-btn").disabled = sim.mode === "scripted" && sim.running;
   $("fleet-mode-btn").classList.toggle("active", sim.mode === "manual");
+  $("start-btn").classList.toggle("active", sim.mode === "scripted");
+  $("fleet-status-chip").innerHTML = `<i></i> ${stats.robots_online} ROBOT${stats.robots_online === 1 ? "" : "S"} ONLINE`;
   $("traffic-test-btn").classList.toggle("hidden", sim.mode !== "manual");
   document.querySelectorAll(".scripted-only").forEach((item) => item.classList.toggle("hidden", sim.mode !== "scripted"));
   $("pause-btn").disabled = !sim.running;
@@ -561,11 +581,11 @@ function connect() {
 
 $("start-btn").addEventListener("click", () => command("/api/demo/start"));
 $("fleet-mode-btn").addEventListener("click", () => { selectedPackageIds.clear(); selectedDestinationId = null; selectedDecisionJobId = null; lastBatchResult = null; command("/api/demo/fleet"); });
-$("traffic-test-btn").addEventListener("click", selectTrafficTest);
-$("pause-btn").addEventListener("click", () => command("/api/demo/pause"));
-$("reset-btn").addEventListener("click", () => { selectedPackageIds.clear(); selectedDestinationId = null; selectedDecisionJobId = null; lastBatchResult = null; command("/api/demo/reset"); });
-$("priority-btn").addEventListener("click", () => command("/api/demo/priority"));
-$("failure-btn").addEventListener("click", () => command(`/api/demo/failure/${$("failure-robot").value}`, `ROBOT ${$("failure-robot").value} UNAVAILABLE · RECOVERY INITIATED`));
+$("traffic-test-btn").addEventListener("click", () => { selectTrafficTest(); setDemoTools(false); });
+$("pause-btn").addEventListener("click", () => { command("/api/demo/pause"); setDemoTools(false); });
+$("reset-btn").addEventListener("click", () => { selectedPackageIds.clear(); selectedDestinationId = null; selectedDecisionJobId = null; lastBatchResult = null; command("/api/demo/reset"); setDemoTools(false); });
+$("priority-btn").addEventListener("click", () => { command("/api/demo/priority"); setDemoTools(false); });
+$("failure-btn").addEventListener("click", () => { command(`/api/demo/failure/${$("failure-robot").value}`, `ROBOT ${$("failure-robot").value} UNAVAILABLE · RECOVERY INITIATED`); setDemoTools(false); });
 $("destination-select").addEventListener("change", (event) => { selectedDestinationId = event.target.value || null; if (latest) render(latest); });
 $("priority-input").addEventListener("input", (event) => { $("priority-output").textContent = event.target.value; });
 $("priority-override").addEventListener("change", (event) => { $("priority-input").disabled = !event.target.checked; });
@@ -586,12 +606,18 @@ $("decision-content").addEventListener("click", (event) => {
 });
 $("theme-toggle").addEventListener("click", () => applyTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark"));
 document.querySelectorAll(".context-tab").forEach((tab) => tab.addEventListener("click", () => setContext(tab.dataset.context)));
-document.querySelectorAll(".workspace-nav-button[data-nav-context]").forEach((tab) => tab.addEventListener("click", () => setContext(tab.dataset.navContext)));
+document.querySelectorAll(".nav-drawer-button[data-nav-context]").forEach((tab) => tab.addEventListener("click", () => setContext(tab.dataset.navContext)));
+$("nav-menu-btn").addEventListener("click", () => setNavDrawer(!$("nav-drawer").classList.contains("open")));
+$("nav-close-btn").addEventListener("click", () => setNavDrawer(false));
+document.querySelector("[data-close-nav]").addEventListener("click", () => setNavDrawer(false));
+$("demo-tools-btn").addEventListener("click", () => setDemoTools(!$("demo-tools-menu").classList.contains("open")));
+$("demo-tools-close").addEventListener("click", () => setDemoTools(false));
 $("nav-events-btn").addEventListener("click", () => {
   const drawer = $("event-drawer");
   const expanded = drawer.classList.toggle("expanded");
   $("event-drawer-toggle").setAttribute("aria-expanded", String(expanded));
   $("event-drawer-arrow").textContent = expanded ? "▾" : "▴";
+  setNavDrawer(false);
 });
 $("sidebar-close-btn").addEventListener("click", () => setSidebarCollapsed(true));
 $("context-toggle-btn").addEventListener("click", () => setSidebarCollapsed(!sidebarCollapsed));
@@ -602,6 +628,11 @@ $("event-drawer-toggle").addEventListener("click", () => {
 });
 $("focus-btn").addEventListener("click", () => toggleFocus());
 $("focus-exit-btn").addEventListener("click", () => toggleFocus(false));
+document.addEventListener("keydown", (event) => {
+  if (event.key !== "Escape") return;
+  setNavDrawer(false);
+  setDemoTools(false);
+});
 $("warehouse-map").addEventListener("pointermove", (event) => {
   const target = event.target.closest?.(".package-node");
   const tooltip = $("map-tooltip");
@@ -627,4 +658,5 @@ $("map-alert").addEventListener("click", () => {
   }
 });
 applyTheme(document.documentElement.dataset.theme);
+setSidebarCollapsed(true);
 poll(); connect();
