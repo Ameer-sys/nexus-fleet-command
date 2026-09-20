@@ -1,110 +1,239 @@
-# NEXUS — Autonomous Fleet Intelligence
+# NEXUS
 
-NEXUS is a Hack the North warehouse-fleet control system built on the official
-[Bracket Bot simulator](https://github.com/Bracket-Bot-Inc/bb-sim). It combines
-multi-robot job auctions, priority scheduling, traffic coordination, failure
-recovery, a live command dashboard, and optional Solana Devnet custody
-attestations. Everything runs in simulation; no physical robot is required.
+**Autonomous Fleet Intelligence for coordinated robot operations.**
 
-## Setup
+> **People set goals. Fleets deliver.**
 
-Install [Git](https://git-scm.com/downloads) and [uv](https://docs.astral.sh/uv/getting-started/installation/), then:
+NEXUS is a fleet-level orchestration system for autonomous warehouse robots.  
+Instead of assigning tasks to individual robots, operators specify what needs to be done and NEXUS decides:
 
-```sh
-git clone https://github.com/Ameer-sys/nexus-fleet-command.git
-cd nexus-fleet-command
-uv sync --locked
-```
+- which robot should take the job
+- how multiple robots should coordinate
+- who gets right-of-way when paths conflict
+- what happens if a robot fails mid-task
 
-uv installs Python 3.12 and the locked dependencies automatically when needed.
+NEXUS is built on top of the **Bracket Bot MuJoCo simulation environment** and adds a shared warehouse intelligence layer across multiple robot simulations.
+
+---
+
+## Why NEXUS?
+
+Managing one autonomous robot is a navigation problem.
+
+Managing a fleet introduces a completely different set of challenges:
+
+- task assignment
+- robot availability
+- battery and health
+- cargo risk
+- traffic conflicts
+- queues and priorities
+- failure recovery
+- explainability
+
+NEXUS treats the fleet as one coordinated workforce instead of a collection of isolated robots.
+
+---
+
+## Core Idea
+
+Instead of telling a robot:
+
+> Robot A, pick up Package 3.
+
+The operator tells NEXUS:
+
+> Move Package 3 to Secure Storage.
+
+NEXUS then evaluates the fleet and decides the best way to complete the objective.
+
+---
+
+## Features
+
+### Fleet Command
+
+Operators can select one or multiple packages, choose destinations, and dispatch work to the fleet without selecting a specific robot.
+
+NEXUS creates real jobs and distributes them across available robots.
+
+---
+
+### Explainable Robot Assignment
+
+Robot selection considers factors such as:
+
+- distance to pickup
+- battery level
+- robot health
+- reliability
+- current workload
+- cargo type
+- task priority
+
+The system also exposes why a robot was selected.
+
+For example:
+
+> Robot A was selected because it has higher health and battery reliability for high-value cargo, even though Robot B is closer.
+
+---
+
+### Multiple Concurrent Jobs
+
+Several robots can work at the same time.
+
+If all robots are occupied, additional jobs remain queued and are automatically dispatched when fleet capacity becomes available.
+
+---
+
+### Context-Aware Traffic Coordination
+
+NEXUS predicts future route conflicts before robots enter the same space.
+
+Right-of-way can consider:
+
+- job priority
+- medical urgency
+- cargo fragility
+- cargo value
+- whether the robot is loaded
+- robot condition
+- remaining distance through an intersection
+
+A robot may yield, hold position, and automatically resume once the route becomes safe.
+
+---
+
+### Warehouse-Aware Navigation
+
+Robots follow aisle-based routes instead of travelling directly through the warehouse.
+
+The warehouse model includes:
+
+- racks
+- aisles
+- intersections
+- pickup access points
+- destination approach points
+- restricted areas
+- robot stations
+
+This makes robot movement resemble real warehouse ground operations.
+
+---
+
+### Shelf-Based Inventory
+
+Packages are stored on racks rather than scattered around the warehouse floor.
+
+Each item has:
+
+- a visual shelf/storage position
+- a valid aisle pickup access point
+
+Robots approach inventory from the aisle and never route through shelf geometry.
+
+---
+
+### Robot Parking Stations
+
+Idle robots return to the nearest available station after completing their work.
+
+Stations can be:
+
+- available
+- reserved
+- occupied
+
+Robots release their station when assigned a new job and automatically return to an available station when idle again.
+
+---
+
+### Failure Recovery
+
+NEXUS can recover from operational robot failures.
+
+If a robot fails before pickup:
+
+- the job returns to the queue
+
+If a robot fails after pickup:
+
+- the robot's last fleet position becomes the package recovery point
+- the remaining task is requeued
+- another robot is selected
+- delivery continues automatically
+
+Unrelated robots continue working throughout the failure.
+
+---
 
 ## NEXUS Control Center
 
-Launch the live autonomous warehouse dashboard with one command:
+NEXUS includes a live browser-based operations dashboard.
 
-```sh
-uv run python scripts/run_nexus_control_center.py
-```
+The Control Center displays:
 
-Open `http://127.0.0.1:8000`, then select **Start Demo**. The default
-0.65x pacing makes the deterministic traffic, priority-job, failure, and
-recovery story run for about one minute. Use `--demo-speed 1.0` for real-time
-physics pacing or a larger value for faster testing.
+- live robot positions
+- warehouse aisles and racks
+- package inventory
+- active routes
+- robot health and battery
+- current jobs
+- queued jobs
+- traffic conflicts
+- right-of-way decisions
+- yielding states
+- failure recovery
+- fleet statistics
+- explainable assignment decisions
 
-The dashboard opens in **Fleet Command** mode. Select one of the 16 packages
-packages on the warehouse map, select a destination zone, adjust handling and
-priority, then choose **Dispatch Fleet**. NEXUS runs its real auction and shows
-the distance, battery, health, reliability, traffic, and workload costs behind
-the selected robot. Use **Simulate Robot Failure** during a delivery to watch
-the existing recovery and reauction path. **Scripted Demo** remains available
-in the top command bar as the deterministic backup presentation.
+It also supports:
 
-Fleet Command supports natural multi-selection: choose several available
-packages, select a shared destination, and dispatch them as separate real jobs
-through `POST /api/jobs/batch`. Three jobs can execute concurrently; further
-jobs stay visibly queued in scheduler priority order and dispatch automatically
-when an agent becomes free. **Select Traffic Test** prepares a real batch for
-the operator to review and dispatch through the same path. The interface also
-includes persistent light and dark themes.
+- manual Fleet Command
+- multi-package dispatch
+- scripted demo mode
+- robot failure injection
+- warehouse reset
+- focus/presentation mode
 
-### Solana Devnet custody attestations
+---
 
-NEXUS records the seven meaningful custody transitions for
-`MEDICAL-CRITICAL` as signed Solana Devnet Memo transactions. Writes run on a
-background queue, so a missing wallet or RPC outage never pauses the robots.
-The integration uses the wallet already configured by the Solana CLI and does
-not read or store secret-key contents.
+## Architecture
 
-```powershell
-solana config set --url devnet
-solana balance
-$env:NEXUS_SOLANA_ENABLED = "1"
-$env:NEXUS_SOLANA_CLUSTER = "devnet"
-$env:NEXUS_SOLANA_TRANSPORT = "auto" # native CLI, then WSL CLI
-uv run python scripts/run_nexus_control_center.py
-```
-
-Set `NEXUS_SOLANA_TRANSPORT` to `native` or `wsl` to force either CLI mode.
-
-If the displayed Devnet balance is too low, fund the development wallet
-manually with `wsl.exe solana airdrop 2 --url devnet` on Windows, or
-`solana airdrop 2 --url devnet` when using a native CLI. Devnet SOL has no real value.
-Without the CLI, wallet, balance, or network, the dashboard reports
-`OFFLINE / DEMO CONTINUES` and the complete deterministic demo still runs.
-
-## Tests
-
-```sh
-uv run --with pytest python -m pytest
-```
-
-The test suite covers fleet allocation, navigation, traffic coordination,
-failure recovery, the HTTP control API, warehouse state, and native/WSL Solana
-transport behavior.
-
-## Attribution
-
-NEXUS preserves the complete history of the upstream
-[Bracket-Bot-Inc/bb-sim](https://github.com/Bracket-Bot-Inc/bb-sim) project.
-The original simulator, models, and weights belong to their respective owners.
-No new license is asserted over upstream material.
-
-## Run
-
-Run one of these to open the drive UI:
-
-```sh
-uv run --locked python -m bbsim arms
-uv run --locked python -m bbsim terrain
-uv run --locked python -m bbsim lean
-```
-
-Hold **WASD** to drive; release to stop. **Space** stops, **R** resets, **P** pauses, **Esc** closes. **M** toggles arm motion; **L** toggles table lean. Drag/scroll to move the camera.
-
-Tested on Apple Silicon macOS; the UI requires a desktop with OpenGL. For a headless check, append `--headless --duration 5`. Use `--help` for options.
-
-## Manipulation
-
-```sh
-uv run --locked python -m bbsim.manipulation
-```
+```text
+                       OPERATOR
+                          │
+                          │ Fleet objective
+                          ▼
+                  ┌────────────────┐
+                  │     NEXUS      │
+                  │ Fleet Command  │
+                  └───────┬────────┘
+                          │
+              ┌───────────┼───────────┐
+              │           │           │
+              ▼           ▼           ▼
+         Scheduling    Auctions    Priorities
+              │           │           │
+              └───────────┼───────────┘
+                          ▼
+                 Fleet Coordination
+                          │
+          ┌───────────────┼────────────────┐
+          │               │                │
+          ▼               ▼                ▼
+      Robot A          Robot B          Robot C
+      MuJoCo           MuJoCo           MuJoCo
+          │               │                │
+          └───────────────┼────────────────┘
+                          ▼
+                Shared Warehouse Model
+                          │
+           ┌──────────────┼──────────────┐
+           ▼              ▼              ▼
+        Routing        Traffic        Recovery
+                          │
+                          ▼
+                NEXUS Control Center
