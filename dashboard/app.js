@@ -93,6 +93,7 @@ const contextTitles = {
   robot: "ROBOT DETAILS",
   decision: "NEXUS DECISION",
   tasks: "FLEET TASKS",
+  inventory: "WAREHOUSE INVENTORY",
   custody: "VERIFIED CUSTODY",
 };
 
@@ -107,6 +108,7 @@ function setContext(context, open = true) {
   $("context-title").textContent = contextTitles[context] || "NEXUS CONTEXT";
   document.querySelectorAll(".context-view").forEach((view) => view.classList.toggle("active", view.dataset.view === context));
   document.querySelectorAll(".context-tab").forEach((tab) => tab.classList.toggle("active", tab.dataset.context === context));
+  document.querySelectorAll(".workspace-nav-button[data-nav-context]").forEach((tab) => tab.classList.toggle("active", tab.dataset.navContext === context));
   if (open) setSidebarCollapsed(false);
 }
 
@@ -118,8 +120,25 @@ function toggleFocus(force) {
 }
 
 function renderMap(data) {
-  const destinationLayer = $("destination-layer"), packageLayer = $("package-layer"), jobLayer = $("job-layer"), routeLayer = $("route-layer"), conflictLayer = $("conflict-layer"), robotLayer = $("robot-layer");
-  [destinationLayer, packageLayer, jobLayer, routeLayer, conflictLayer, robotLayer].forEach((layer) => layer.replaceChildren());
+  const navigationLayer = $("navigation-layer"), destinationLayer = $("destination-layer"), packageLayer = $("package-layer"), jobLayer = $("job-layer"), routeLayer = $("route-layer"), conflictLayer = $("conflict-layer"), robotLayer = $("robot-layer");
+  [navigationLayer, destinationLayer, packageLayer, jobLayer, routeLayer, conflictLayer, robotLayer].forEach((layer) => layer.replaceChildren());
+
+  const navigation = data.warehouse?.navigation;
+  (navigation?.edges || []).forEach(([start, end]) => {
+    const [x1, y1] = point(start), [x2, y2] = point(end);
+    navigationLayer.append(svgElement("line", {x1, y1, x2, y2, class: "aisle-path"}));
+  });
+  (navigation?.intersections || []).forEach((intersection) => {
+    const [x, y] = point(intersection.position);
+    navigationLayer.append(svgElement("circle", {cx: x, cy: y, r: 25, class: "intersection-zone"}));
+    const label = svgElement("text", {x, y: y - 32, class: "intersection-label", "text-anchor": "middle"});
+    label.textContent = "CONTROLLED CROSSING";
+    navigationLayer.append(label);
+  });
+  (navigation?.stop_lines || []).forEach(([start, end]) => {
+    const [x1, y1] = point(start), [x2, y2] = point(end);
+    navigationLayer.append(svgElement("line", {x1, y1, x2, y2, class: "stop-line"}));
+  });
 
   (data.destinations || []).forEach((destination) => {
     const [x, y] = point(destination.position);
@@ -127,7 +146,7 @@ function renderMap(data) {
     const group = svgElement("g", {class: `destination-node ${selected ? "selected" : ""}`, transform: `translate(${x} ${y})`, tabindex: 0, role: "button", "aria-label": `Deliver to ${destination.name}`});
     group.append(svgElement("rect", {x: -48, y: -18, width: 96, height: 36, fill: selected ? "#d8f4f1" : "#ffffff", stroke: selected ? "#0d9488" : "#8bb4c1", "stroke-width": selected ? 3 : 2}));
     const cap = svgElement("rect", {x: -48, y: -18, width: 96, height: 7, fill: selected ? "#0d9488" : "#b9d4dc"}); group.append(cap);
-    const label = svgElement("text", {x: 0, y: 7, fill: "#193746", "font-size": 9, "font-weight": 900, "text-anchor": "middle"}); label.textContent = destination.name.toUpperCase(); group.append(label);
+    const label = svgElement("text", {x: 0, y: 7, fill: "#193746", "font-size": 12, "font-weight": 800, "text-anchor": "middle"}); label.textContent = destination.name; group.append(label);
     const choose = () => { selectedDestinationId = destination.destination_id; setContext("command"); render(data); };
     group.addEventListener("click", choose); group.addEventListener("keydown", (event) => { if (event.key === "Enter" || event.key === " ") choose(); });
     destinationLayer.append(group);
@@ -154,9 +173,9 @@ function renderMap(data) {
       group.append(svgElement("path", {d: "M-14 -20 L0 -29 L14 -20", fill: color, opacity: ".62"}));
     }
     const icon = svgElement("text", {x: 0, y: 4, fill: color, "font-size": 12, "font-weight": 950, "text-anchor": "middle"}); icon.textContent = item.category === "MEDICAL" ? "+" : item.category === "HIGH_VALUE" ? "◆" : item.category === "FRAGILE" ? "!" : "■"; group.append(icon);
-    const label = svgElement("text", {x: 0, y: 27, fill: selected ? "#0b4d7a" : "#365665", "font-size": 7.5, "font-weight": 900, "text-anchor": "middle"}); label.textContent = packageLabel(item); group.append(label);
+    const label = svgElement("text", {x: 0, y: 31, fill: selected ? "#0b4d7a" : "#284a5a", "font-size": 13, "font-weight": 800, "text-anchor": "middle"}); label.textContent = packageLabel(item); group.append(label);
     const stateColor = item.status === "AVAILABLE" ? "#65c99a" : item.status === "DELIVERED" ? "#65c99a" : item.status === "RECOVERY_PENDING" ? "#f06f6f" : "#f3b95f";
-    const status = svgElement("text", {x: 0, y: 37, fill: stateColor, "font-size": 5.8, "font-weight": 900, "text-anchor": "middle"}); status.textContent = stateText; group.append(status);
+    const status = svgElement("text", {x: 0, y: 44, fill: stateColor, "font-size": 10, "font-weight": 800, "text-anchor": "middle"}); status.textContent = stateText; group.append(status);
     if (item.status === "DELIVERED") group.append(svgElement("circle", {cx: 17, cy: -17, r: 7, fill: "#dff7ed", stroke: "#159a7a", "stroke-width": 1.5}));
     if (item.status === "DELIVERED") { const check = svgElement("text", {x: 17, y: -14, fill: "#0b7d61", "font-size": 8, "font-weight": 950, "text-anchor": "middle"}); check.textContent = "✓"; group.append(check); }
     const choose = () => {
@@ -195,27 +214,29 @@ function renderMap(data) {
   data.trajectories.forEach((route) => {
     const robot = data.robots.find((item) => item.id === route.robot_id);
     if (!robot) return;
-    const [x1, y1] = point(route.current_position), [x2, y2] = point(route.target_position);
-    routeLayer.append(svgElement("line", {x1, y1, x2, y2, stroke: robotColor(robot), "stroke-width": route.yielding ? 4 : 3, "stroke-dasharray": route.yielding ? "3 8" : "none", opacity: ".9", "marker-end": "url(#route-arrow)"}));
-    const routeLabel = svgElement("text", {x: (x1 + x2) / 2, y: (y1 + y2) / 2 - 8, fill: robotColor(robot), "font-size": 10, "font-weight": 950, "text-anchor": "middle"}); routeLabel.textContent = `ROBOT ${robot.id}${route.yielding ? " · YIELDING" : ""}`; routeLayer.append(routeLabel);
+    const path = (route.estimated_path || [route.current_position, route.target_position]).map(point);
+    if (path.length < 2) return;
+    routeLayer.append(svgElement("polyline", {points: path.map(([x, y]) => `${x},${y}`).join(" "), fill: "none", stroke: robotColor(robot), "stroke-width": route.yielding ? 5 : 4, "stroke-linecap": "round", "stroke-linejoin": "round", "stroke-dasharray": route.yielding ? "4 9" : "none", opacity: ".92", "marker-end": "url(#route-arrow)"}));
+    const labelPoint = path[Math.min(1, path.length - 1)];
+    const routeLabel = svgElement("text", {x: labelPoint[0], y: labelPoint[1] - 12, fill: robotColor(robot), "font-size": 13, "font-weight": 800, "text-anchor": "middle"}); routeLabel.textContent = `Robot ${robot.id}${route.yielding ? " · Yielding" : ""}`; routeLayer.append(routeLabel);
   });
 
   data.conflicts.forEach((conflict) => {
     const [x, y] = point(conflict.conflict_point);
     conflictLayer.append(svgElement("circle", {cx: x, cy: y, r: 28, fill: "#f3b95f22", stroke: "#f3b95f", "stroke-width": 2, "stroke-dasharray": "5 4", filter: "url(#soft-glow)"}));
     const icon = svgElement("text", {x, y: y + 6, fill: "#ffd38e", "font-size": 22, "font-weight": 900, "text-anchor": "middle"}); icon.textContent = "!"; conflictLayer.append(icon);
-    const text = svgElement("text", {x, y: y + 43, fill: "#f3b95f", "font-size": 9, "font-weight": 800, "text-anchor": "middle"}); text.textContent = `${conflict.robot_a} ↔ ${conflict.robot_b}  ROW ${conflict.right_of_way}`; conflictLayer.append(text);
+    const text = svgElement("text", {x, y: y + 46, fill: "#c9780a", "font-size": 13, "font-weight": 800, "text-anchor": "middle"}); text.textContent = `${conflict.robot_a} ↔ ${conflict.robot_b} · ${conflict.right_of_way} proceeds`; conflictLayer.append(text);
   });
 
   data.robots.forEach((robot) => {
     const [x, y] = point(robot.position);
     const color = robotColor(robot);
     const group = svgElement("g", {class: `robot-node ${selectedRobotId === robot.id ? "selected" : ""}`, transform: `translate(${x} ${y})`, role: "button", tabindex: 0, "aria-label": `Robot ${robot.id}, ${robot.state}`});
-    group.append(svgElement("rect", {x: -23, y: -23, width: 46, height: 46, rx: 7, fill: "#ffffff", stroke: color, "stroke-width": 4, filter: "url(#soft-glow)"}));
-    group.append(svgElement("rect", {x: -14, y: -14, width: 28, height: 28, fill: color, opacity: ".18"}));
-    const id = svgElement("text", {x: 0, y: 5, fill: "#163647", "font-size": 15, "font-weight": 900, "text-anchor": "middle"}); id.textContent = robot.id; group.append(id);
-    const badge = svgElement("rect", {x: -31, y: 31, width: 62, height: 16, rx: 8, fill: "#ffffff", stroke: color, "stroke-width": 1}); group.append(badge);
-    const state = svgElement("text", {x: 0, y: 42, fill: color, "font-size": 7, "font-weight": 900, "letter-spacing": ".7", "text-anchor": "middle"}); state.textContent = robot.state; group.append(state);
+    group.append(svgElement("rect", {x: -27, y: -27, width: 54, height: 54, rx: 12, fill: "#ffffff", stroke: color, "stroke-width": 5, filter: "url(#soft-glow)"}));
+    group.append(svgElement("rect", {x: -17, y: -17, width: 34, height: 34, rx: 7, fill: color, opacity: ".16"}));
+    const id = svgElement("text", {x: 0, y: 6, fill: "#163647", "font-size": 18, "font-weight": 800, "text-anchor": "middle"}); id.textContent = robot.id; group.append(id);
+    const badge = svgElement("rect", {x: -38, y: 34, width: 76, height: 20, rx: 10, fill: "#ffffff", stroke: color, "stroke-width": 1.5}); group.append(badge);
+    const state = svgElement("text", {x: 0, y: 48, fill: color, "font-size": 10, "font-weight": 800, "text-anchor": "middle"}); state.textContent = robot.state; group.append(state);
     const choose = () => { selectedRobotId = robot.id; setContext("robot"); renderRobots(data); };
     group.addEventListener("click", choose); group.addEventListener("keydown", (event) => { if (event.key === "Enter" || event.key === " ") choose(); });
     robotLayer.append(group);
@@ -322,6 +343,24 @@ function renderEvents(data) {
   }
   lastFocusEventKey = eventKey;
   focusEventsReady = true;
+}
+
+function renderInventory(data) {
+  const items = data.packages || [];
+  $("inventory-count").textContent = `${items.length} ITEMS`;
+  $("inventory-list").innerHTML = items.length ? items.map((item) => `
+    <button type="button" class="inventory-row" data-inventory-package="${esc(item.package_id)}">
+      <span class="inventory-symbol category-${esc(item.category.toLowerCase())}">${esc(packageLabel(item))}</span>
+      <span><b>${esc(item.name)}</b><small>${esc(item.location)} · Priority ${item.priority}</small></span>
+      <em>${esc(item.status.replaceAll("_", " "))}</em>
+    </button>`).join("") : `<div class="custody-empty">Inventory is available in Fleet Command mode.</div>`;
+  document.querySelectorAll("[data-inventory-package]").forEach((row) => row.addEventListener("click", () => {
+    const item = items.find((candidate) => candidate.package_id === row.dataset.inventoryPackage);
+    if (!item) return;
+    if (item.status === "AVAILABLE") selectedPackageIds.add(item.package_id);
+    setContext("command");
+    render(data);
+  }));
 }
 
 const custodyLabels = {
@@ -444,7 +483,7 @@ function render(data) {
   document.querySelectorAll(".scripted-only").forEach((item) => item.classList.toggle("hidden", sim.mode !== "scripted"));
   $("pause-btn").disabled = !sim.running;
   $("priority-btn").disabled = data.jobs.some((job) => job.job_id === "JOB-URGENT");
-  renderMap(data); renderRobots(data); renderJobs(data); renderCommand(data); renderDecision(data); renderCustody(data); renderEvents(data);
+  renderMap(data); renderRobots(data); renderJobs(data); renderInventory(data); renderCommand(data); renderDecision(data); renderCustody(data); renderEvents(data);
 }
 
 function showToast(message) {
@@ -547,6 +586,13 @@ $("decision-content").addEventListener("click", (event) => {
 });
 $("theme-toggle").addEventListener("click", () => applyTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark"));
 document.querySelectorAll(".context-tab").forEach((tab) => tab.addEventListener("click", () => setContext(tab.dataset.context)));
+document.querySelectorAll(".workspace-nav-button[data-nav-context]").forEach((tab) => tab.addEventListener("click", () => setContext(tab.dataset.navContext)));
+$("nav-events-btn").addEventListener("click", () => {
+  const drawer = $("event-drawer");
+  const expanded = drawer.classList.toggle("expanded");
+  $("event-drawer-toggle").setAttribute("aria-expanded", String(expanded));
+  $("event-drawer-arrow").textContent = expanded ? "▾" : "▴";
+});
 $("sidebar-close-btn").addEventListener("click", () => setSidebarCollapsed(true));
 $("context-toggle-btn").addEventListener("click", () => setSidebarCollapsed(!sidebarCollapsed));
 $("event-drawer-toggle").addEventListener("click", () => {

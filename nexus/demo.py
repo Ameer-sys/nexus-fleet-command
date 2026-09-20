@@ -11,7 +11,13 @@ from .jobs import Job, JobStatus
 from .robot import NexusRobot
 from .solana import ChainStatus, SolanaCustodyLedger
 from .traffic import TrafficConfig, TrafficManager, build_trajectory
-from .warehouse import WarehouseDestination, WarehousePackage, create_destinations, create_packages
+from .warehouse import (
+    WarehouseDestination,
+    WarehouseNavigationMap,
+    WarehousePackage,
+    create_destinations,
+    create_packages,
+)
 
 
 PRIORITY_REQUEST_TICK = 1_200
@@ -63,18 +69,22 @@ class WarehouseDemo:
         self.events: list[NexusEvent] = []
         self.packages = create_packages()
         self.destinations = create_destinations()
+        self.navigation_map = WarehouseNavigationMap()
         self.last_decision: dict[str, Any] | None = None
         self.decision_history: list[dict[str, Any]] = []
         self._manual_job_counter = 0
         self.custody_ledger = custody_ledger or SolanaCustodyLedger()
         self._custody_events_recorded: set[str] = set()
         self._chain_status_seen: dict[int, str] = {}
-        self.fleet = self._create_fleet(include_scripted_jobs=mode == "scripted")
+        self.fleet = self._create_fleet(
+            self.navigation_map,
+            include_scripted_jobs=mode == "scripted",
+        )
         self.urgent = Job(
             "JOB-URGENT",
             "MEDICAL-CRITICAL",
-            pickup=(0.6, 1.3),
-            dropoff=(1.7, 0.3),
+            pickup=(0.82, 0.98),
+            dropoff=(0.82, 0.08),
             priority=10,
         )
         self._record("SYSTEM", "NEXUS control center ready", severity="success")
@@ -89,7 +99,11 @@ class WarehouseDemo:
             self._record("SOLANA", "Devnet offline · demo continues", severity="warning")
 
     @staticmethod
-    def _create_fleet(*, include_scripted_jobs: bool = True) -> Fleet:
+    def _create_fleet(
+        navigation_map: WarehouseNavigationMap,
+        *,
+        include_scripted_jobs: bool = True,
+    ) -> Fleet:
         traffic = TrafficManager(
             TrafficConfig(
                 safety_radius=0.16,
@@ -103,9 +117,9 @@ class WarehouseDemo:
         )
         fleet = Fleet(
             [
-                NexusRobot("A", offset=(0.0, 0.0), health_percent=96, reliability_score=98),
-                NexusRobot("B", offset=(2.0, 0.0), health_percent=74, reliability_score=82),
-                NexusRobot("C", offset=(0.0, 2.0), health_percent=99, reliability_score=97),
+                NexusRobot("A", offset=(0.0, 0.0), health_percent=96, reliability_score=98, navigation_map=navigation_map),
+                NexusRobot("B", offset=(2.0, 0.0), health_percent=74, reliability_score=82, navigation_map=navigation_map),
+                NexusRobot("C", offset=(0.0, 2.0), health_percent=99, reliability_score=97, navigation_map=navigation_map),
             ],
             traffic_manager=traffic,
         )
@@ -113,7 +127,7 @@ class WarehouseDemo:
             for job in (
                 Job("JOB-A", "PRIORITY-PART", (0.2, 0.1), (1.8, 1.8), priority=8),
                 Job("JOB-B", "STANDARD-BOX", (1.8, 0.1), (0.2, 1.8), priority=3),
-                Job("JOB-C", "SENSOR-KIT", (0.1, 1.8), (0.4, 1.4), priority=5),
+                Job("JOB-C", "SENSOR-KIT", (0.18, 1.92), (0.82, 1.92), priority=5),
             ):
                 fleet.submit_job(job)
         return fleet
@@ -159,8 +173,8 @@ class WarehouseDemo:
         job = Job(
             f"CMD-{self._manual_job_counter:03d}",
             package.package_id,
-            package.position,
-            destination.position,
+            package.access_position or package.position,
+            destination.approach_position or destination.position,
             priority=command_priority,
             handling_category=handling,
             risk=package.risk,
@@ -764,7 +778,13 @@ class WarehouseDemo:
                 "phase": phase,
                 "mode": self.mode,
             },
-            "warehouse": {"x_min": 0.0, "x_max": 2.0, "y_min": 0.0, "y_max": 2.0},
+            "warehouse": {
+                "x_min": 0.0,
+                "x_max": 2.0,
+                "y_min": 0.0,
+                "y_max": 2.0,
+                "navigation": self.navigation_map.telemetry(),
+            },
             "robots": robots,
             "jobs": jobs,
             "packages": [package.telemetry() for package in self.packages.values()] if self.mode == "manual" else [],

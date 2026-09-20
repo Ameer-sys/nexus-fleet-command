@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta id="theme-color" name="theme-color" content="#edf3f7" />
     <title>NEXUS Control Center</title>
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230b1118'/%3E%3Cpath d='M7 24V15h4v9zm7 0V6h4v18zm7 0V11h4v13z' fill='%2349b9cf'/%3E%3C/svg%3E" />
+    <link rel="icon" href="/static/assets/nexus-mark.svg" />
     <link rel="stylesheet" href="/static/styles.css" />
     <link rel="stylesheet" href="/static/premium.css" />
     <link rel="stylesheet" href="/static/theme.css" />
     <script>
       (() => {
         const saved = localStorage.getItem("nexus-theme");
-        const theme = saved || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        const theme = saved || "light";
         document.documentElement.dataset.theme = theme;
       })();
     </script>
@@ -21,9 +21,7 @@
     <div class="app-shell">
       <header class="topbar">
         <div class="brand-block">
-          <div class="brand-mark" aria-hidden="true">
-            <svg viewBox="0 0 40 40"><path d="M8 29V11L20 24V11M32 11V29L20 16V29" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="8" cy="11" r="2.4" fill="#fff"/><circle cx="32" cy="29" r="2.4" fill="#fff"/></svg>
-          </div>
+          <img class="brand-mark" src="/static/assets/nexus-mark.svg" alt="" />
           <div>
             <h1>NEXUS</h1>
             <div class="brand-subtitle">AUTONOMOUS FLEET INTELLIGENCE · CONTROL CENTER</div>
@@ -42,6 +40,14 @@
       </header>
 
       <section class="command-bar" aria-label="Demo controls">
+        <nav class="workspace-nav" aria-label="Workspace sections">
+          <button class="workspace-nav-button active" data-nav-context="command">Overview</button>
+          <button class="workspace-nav-button" data-nav-context="robot">Fleet</button>
+          <button class="workspace-nav-button" data-nav-context="tasks">Tasks</button>
+          <button class="workspace-nav-button" data-nav-context="inventory">Inventory</button>
+          <button id="nav-events-btn" class="workspace-nav-button">Events</button>
+          <button class="workspace-nav-button" data-nav-context="custody">System</button>
+        </nav>
         <div class="controls">
           <button id="fleet-mode-btn" class="button mode active"><svg class="ui-icon"><use href="/static/nexus-icons.svg#i-fleet"/></svg>FLEET COMMAND</button>
           <button id="traffic-test-btn" class="button traffic-preset"><svg class="ui-icon"><use href="/static/nexus-icons.svg#i-conflict"/></svg>SELECT TRAFFIC TEST</button>
@@ -113,6 +119,7 @@
               </defs>
               <rect x="0" y="0" width="1000" height="680" fill="#f7fafc" />
               <rect x="62" y="46" width="876" height="584" rx="14" fill="url(#floor-grid)" stroke="#b9ccd5" stroke-width="2" />
+              <g id="navigation-layer" class="navigation-layer" aria-hidden="true"></g>
               <g class="warehouse-scenery" aria-hidden="true">
                 <path class="safety-line" d="M205 105H382V575H205ZM618 105H795V575H618Z" />
                 <g class="conveyor" transform="translate(76 245)">
@@ -139,10 +146,8 @@
                 <rect x="648" y="368" width="112" height="190" rx="4" />
                 <text x="296" y="226">RACK 01</text><text x="296" y="462">RACK 02</text>
                 <text x="704" y="226">RACK 03</text><text x="704" y="462">RACK 04</text>
-                <path d="M 500 58 V 618" class="aisle-line" />
-                <path d="M 74 340 H 926" class="aisle-line" />
-                <text x="78" y="74" class="zone-label">ZONE NORTH</text>
-                <text x="78" y="612" class="zone-label">ZONE SOUTH</text>
+                <text x="190" y="92" class="zone-label">North staging</text>
+                <text x="190" y="604" class="zone-label">South operations</text>
               </g>
               <g id="destination-layer"></g>
               <g id="job-layer"></g>
@@ -163,9 +168,11 @@
             <button id="sidebar-close-btn" class="icon-button" aria-label="Minimize contextual sidebar">MINIMIZE ›</button>
           </header>
           <nav class="context-tabs" aria-label="Context views">
-            <button class="context-tab active" data-context="command">COMMAND</button>
-            <button class="context-tab" data-context="tasks">TASKS</button>
-            <button class="context-tab" data-context="custody">CUSTODY</button>
+            <button class="context-tab active" data-context="command">Overview</button>
+            <button class="context-tab" data-context="robot">Fleet</button>
+            <button class="context-tab" data-context="tasks">Tasks</button>
+            <button class="context-tab" data-context="inventory">Inventory</button>
+            <button class="context-tab" data-context="custody">System</button>
           </nav>
 
           <section id="command-view" class="context-view active" data-view="command">
@@ -206,6 +213,13 @@
             <div class="panel-heading small"><div><span class="eyebrow">OPERATIONS</span><h2>FLEET TASKS</h2></div><span id="job-count" class="count-badge">0 JOBS</span></div>
             <div id="job-list" class="job-list"></div>
           </article>
+          </section>
+
+          <section id="inventory-view" class="context-view" data-view="inventory">
+            <article class="inventory-panel">
+              <div class="panel-heading small"><div><span class="eyebrow">WAREHOUSE</span><h2>INVENTORY</h2></div><span id="inventory-count" class="count-badge">0 ITEMS</span></div>
+              <div id="inventory-list" class="inventory-list"></div>
+            </article>
           </section>
 
           <section id="custody-view" class="context-view" data-view="custody">

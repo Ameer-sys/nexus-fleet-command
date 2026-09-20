@@ -39,15 +39,19 @@ class PlannedTrajectory:
     nominal_speed: float
 
     def position_at(self, seconds: float) -> tuple[float, float]:
-        start_x, start_y = self.current_position
-        target_x, target_y = self.target_position
-        dx, dy = target_x - start_x, target_y - start_y
-        distance = math.hypot(dx, dy)
-        if distance == 0.0:
-            return self.target_position
-        travelled = min(distance, max(0.0, seconds) * self.nominal_speed)
-        fraction = travelled / distance
-        return start_x + dx * fraction, start_y + dy * fraction
+        remaining = max(0.0, seconds) * self.nominal_speed
+        for start, end in zip(self.estimated_path, self.estimated_path[1:]):
+            distance = math.dist(start, end)
+            if distance <= 1e-12:
+                continue
+            if remaining <= distance:
+                fraction = remaining / distance
+                return (
+                    start[0] + (end[0] - start[0]) * fraction,
+                    start[1] + (end[1] - start[1]) * fraction,
+                )
+            remaining -= distance
+        return self.target_position
 
     def telemetry(self) -> dict[str, Any]:
         return {
@@ -94,14 +98,19 @@ def build_trajectory(
     if destination is None:
         return None
     start = robot.position
-    distance = math.hypot(destination[0] - start[0], destination[1] - start[1])
+    path = robot.planned_path
+    if target is not None:
+        path = (start, target)
+    elif not path:
+        path = (start, destination)
+    distance = sum(math.dist(first, second) for first, second in zip(path, path[1:]))
     arrival = distance / config.nominal_speed if distance else 0.0
     priority = robot.current_job.priority if robot.current_job is not None else 0
     return PlannedTrajectory(
         robot.id,
         start,
-        destination,
-        (start, destination),
+        path[-1],
+        path,
         arrival,
         priority,
         config.nominal_speed,

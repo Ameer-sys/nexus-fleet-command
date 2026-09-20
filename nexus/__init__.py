@@ -16,6 +16,7 @@ from .traffic import (
     choose_right_of_way,
     predict_conflict,
 )
+from .warehouse import RestrictedArea, WarehouseNavigationMap
 
 __all__ = [
     "AuctionConfig",
@@ -33,12 +34,14 @@ __all__ = [
     "NavigationController",
     "NexusRobot",
     "Robot",
+    "RestrictedArea",
     "SolanaCustodyLedger",
     "TaskState",
     "PlannedTrajectory",
     "TrafficConfig",
     "TrafficConflict",
     "TrafficManager",
+    "WarehouseNavigationMap",
     "build_trajectory",
     "choose_right_of_way",
     "predict_conflict",

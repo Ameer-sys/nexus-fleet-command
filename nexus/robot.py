@@ -3,12 +3,15 @@
 from __future__ import annotations
 
 import math
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from bbsim.simulation import Simulation
 
 from .jobs import Job, JobStatus, TaskState
 from .navigation import NavigationController
+
+if TYPE_CHECKING:
+    from .warehouse import WarehouseNavigationMap
 
 
 class NexusRobot:
@@ -25,11 +28,13 @@ class NexusRobot:
         battery_drain_per_second: float = 0.002,
         health_percent: float = 100.0,
         reliability_score: float = 100.0,
+        navigation_map: WarehouseNavigationMap | None = None,
     ) -> None:
         self.id = str(robot_id)
         self.sim = simulation or Simulation(kind="arms")
         self.offset = (float(offset[0]), float(offset[1]))
         self.controller = controller or NavigationController()
+        self.navigation_map = navigation_map
 
         self.battery = max(0.0, min(100.0, float(battery)))
         self.battery_drain_per_second = max(0.0, float(battery_drain_per_second))
@@ -47,6 +52,8 @@ class NexusRobot:
         self.yielding = False
         self.yield_reason: str | None = None
         self.resume_target: tuple[float, float] | None = None
+        self.route_waypoints: list[tuple[float, float]] = []
+        self.navigation_goal: tuple[float, float] | None = None
         self._pre_yield_task_state = TaskState.IDLE
         self._mode = "idle"
         self._events: list[dict[str, Any]] = []
@@ -112,11 +119,44 @@ class NexusRobot:
 
     @property
     def planned_distance(self) -> float:
+        path = self.planned_path
+        if len(path) < 2:
+            return math.inf
+        return sum(math.dist(first, second) for first, second in zip(path, path[1:]))
+
+    @property
+    def planned_path(self) -> tuple[tuple[float, float], ...]:
         target = self.planned_target
         if target is None:
-            return math.inf
-        x, y = self.position
-        return math.hypot(target[0] - x, target[1] - y)
+            return ()
+        remaining = list(self.route_waypoints)
+        if remaining and math.dist(remaining[0], target) <= 1e-9:
+            remaining.pop(0)
+        return (self.position, target, *remaining)
+
+    def _start_route(self, destination: tuple[float, float]) -> None:
+        goal = (float(destination[0]), float(destination[1]))
+        points = (
+            self.navigation_map.route(self.position, goal)
+            if self.navigation_map is not None
+            else [goal]
+        )
+        self.navigation_goal = goal
+        self.current_target = points[0] if points else goal
+        self.route_waypoints = list(points[1:])
+        self.arrived = False
+        self._mode = "navigate"
+
+    def _advance_route_if_needed(self) -> bool:
+        """Advance to the next aisle waypoint; return True at the final goal."""
+
+        if not self.arrived or self._mode != "navigate":
+            return False
+        if self.route_waypoints:
+            self.current_target = self.route_waypoints.pop(0)
+            self.arrived = False
+            return False
+        return True
 
     def set_target(self, x: float, y: float) -> None:
         """Start autonomous navigation to a global warehouse coordinate."""
@@ -125,16 +165,16 @@ class NexusRobot:
             raise RuntimeError("cannot replace the target of an active job")
         if not self.available:
             raise RuntimeError(f"unavailable robot {self.id} cannot navigate")
-        self.current_target = (float(x), float(y))
-        self.arrived = False
+        self._start_route((x, y))
         self.busy = True
-        self._mode = "navigate"
 
     def stop(self) -> None:
         """Stop commanding motion and cancel the active navigation target."""
 
         self.sim.command[:] = [0.0, 0.0]
         self.current_target = None
+        self.route_waypoints = []
+        self.navigation_goal = None
         self.arrived = False
         self.busy = self.current_job is not None
         self._mode = "idle"
@@ -145,6 +185,8 @@ class NexusRobot:
         if self.current_job is not None:
             raise RuntimeError("cannot hold position while executing a job")
         self.current_target = self.position
+        self.route_waypoints = []
+        self.navigation_goal = self.position
         self.arrived = True
         self.busy = False
         self._mode = "hold"
@@ -189,12 +231,16 @@ class NexusRobot:
             self.task_state = TaskState.IDLE
             self.busy = False
             self.current_target = None
+            self.route_waypoints = []
+            self.navigation_goal = None
             self._mode = "idle"
             return
         self.yielding = False
         self.yield_reason = None
         self.resume_target = None
         self.current_target = self.position
+        self.route_waypoints = []
+        self.navigation_goal = self.position
         self.arrived = True
         self.task_state = TaskState.FAILED
         self._mode = "hold"
@@ -206,6 +252,8 @@ class NexusRobot:
         self.current_task = None
         self.busy = False
         self.current_target = self.position if not self.available else None
+        self.route_waypoints = []
+        self.navigation_goal = self.current_target
         self.task_state = TaskState.FAILED if not self.available else TaskState.IDLE
         self._mode = "hold" if not self.available else "idle"
         return job
@@ -223,10 +271,8 @@ class NexusRobot:
         self.current_job = job
         self.current_task = job
         self.task_state = TaskState.TO_PICKUP
-        self.current_target = job.pickup
-        self.arrived = False
+        self._start_route(job.pickup)
         self.busy = True
-        self._mode = "navigate"
 
     def pop_events(self) -> list[dict[str, Any]]:
         events, self._events = self._events, []
@@ -253,9 +299,7 @@ class NexusRobot:
         elif job.status is JobStatus.PICKED_UP:
             job.status = JobStatus.TO_DROPOFF
             self.task_state = TaskState.TO_DROPOFF
-            self.current_target = job.dropoff
-            self.arrived = False
-            self._mode = "navigate"
+            self._start_route(job.dropoff)
             job.record(tick, "to_dropoff", self.id)
             self._emit("delivery_started", job, tick)
 
@@ -272,6 +316,8 @@ class NexusRobot:
         self.current_job = None
         self.current_task = None
         self.current_target = None
+        self.route_waypoints = []
+        self.navigation_goal = None
         self.task_state = TaskState.IDLE
         self.busy = False
         self.arrived = True
@@ -291,6 +337,8 @@ class NexusRobot:
         self.current_job = None
         self.current_task = None
         self.current_target = None
+        self.route_waypoints = []
+        self.navigation_goal = None
         self._mode = "idle"
 
     def _advance_job_after_navigation(self, tick: int) -> None:
@@ -368,7 +416,9 @@ class NexusRobot:
             self.arrived = (self.distance_to_target or 0.0) <= tolerance
             if self.arrived and self._mode == "navigate" and self.current_job is None:
                 self.busy = False
-        self._advance_job_after_navigation(current_tick)
+        at_final_goal = self._advance_route_if_needed()
+        if at_final_goal:
+            self._advance_job_after_navigation(current_tick)
 
     def telemetry(self) -> dict[str, Any]:
         """Return a serializable snapshot suitable for logs or a dashboard."""
@@ -382,6 +432,10 @@ class NexusRobot:
             "velocity": self.velocity,
             "target": self.current_target,
             "planned_target": self.planned_target,
+            "navigation_goal": self.navigation_goal,
+            "route": list(self.planned_path),
+            "remaining_waypoints": list(self.route_waypoints),
+            "waiting_point": self.position if self.yielding else None,
             "distance_to_target": self.distance_to_target,
             "arrived": self.arrived,
             "failed": self.failed,
