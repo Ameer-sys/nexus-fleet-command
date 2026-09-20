@@ -54,6 +54,8 @@ class NexusRobot:
         self.resume_target: tuple[float, float] | None = None
         self.route_waypoints: list[tuple[float, float]] = []
         self.navigation_goal: tuple[float, float] | None = None
+        self.station_id: str | None = None
+        self.station_destination: tuple[float, float] | None = None
         self._pre_yield_task_state = TaskState.IDLE
         self._mode = "idle"
         self._events: list[dict[str, Any]] = []
@@ -192,6 +194,74 @@ class NexusRobot:
         self._mode = "hold"
         self.sim.command[:] = [0.0, 0.0]
 
+    def initialize_parked(self, station_id: str) -> None:
+        """Mark a newly-created robot as docked at its initial station."""
+
+        self.station_id = station_id
+        self.station_destination = self.position
+        self.task_state = TaskState.PARKED
+        self.current_target = None
+        self.route_waypoints = []
+        self.navigation_goal = self.position
+        self.arrived = True
+        self.busy = False
+        self._mode = "hold"
+        self.sim.command[:] = [0.0, 0.0]
+
+    def start_station_return(
+        self,
+        station_id: str,
+        position: tuple[float, float],
+    ) -> None:
+        """Route an idle robot to a fleet-reserved charging station."""
+
+        if self.current_job is not None or not self.available:
+            raise RuntimeError("only an available idle robot may return to a station")
+        self.station_id = station_id
+        self.station_destination = (float(position[0]), float(position[1]))
+        self.task_state = TaskState.RETURNING_TO_STATION
+        self._start_route(self.station_destination)
+        self.busy = True
+
+    def leave_station(self) -> None:
+        self.station_id = None
+        self.station_destination = None
+        if self.task_state in {TaskState.PARKED, TaskState.RETURNING_TO_STATION}:
+            self.task_state = TaskState.IDLE
+        self.current_target = None
+        self.route_waypoints = []
+        self.navigation_goal = None
+        self.arrived = False
+        self.busy = False
+        self._mode = "idle"
+
+    def _complete_station_return(self, tick: int) -> None:
+        if self.task_state is not TaskState.RETURNING_TO_STATION or self.station_id is None:
+            return
+        if self.station_destination is not None:
+            current = self.position
+            self.offset = (
+                self.offset[0] + self.station_destination[0] - current[0],
+                self.offset[1] + self.station_destination[1] - current[1],
+            )
+        self.task_state = TaskState.PARKED
+        self.current_target = None
+        self.route_waypoints = []
+        self.navigation_goal = self.station_destination
+        self.arrived = True
+        self.busy = False
+        self._mode = "hold"
+        self.sim.command[:] = [0.0, 0.0]
+        self._events.append(
+            {
+                "type": "station_parked",
+                "tick": tick,
+                "robot_id": self.id,
+                "station_id": self.station_id,
+                "position": self.position,
+            }
+        )
+
     def begin_yield(self, reason: str, tick: int) -> None:
         """Hold the current point while preserving the intended job target."""
 
@@ -268,6 +338,8 @@ class NexusRobot:
         if job.status is not JobStatus.ASSIGNED or job.assigned_robot_id != self.id:
             raise ValueError("job must be assigned to this robot before execution")
 
+        self.station_id = None
+        self.station_destination = None
         self.current_job = job
         self.current_task = job
         self.task_state = TaskState.TO_PICKUP
@@ -367,6 +439,8 @@ class NexusRobot:
         tolerance = (
             self.controller.config.hold_tolerance
             if self._mode == "hold"
+            else max(self.controller.config.target_tolerance, 0.16)
+            if self.task_state is TaskState.RETURNING_TO_STATION
             else self.controller.config.target_tolerance
         )
         velocity, yaw_rate, _distance, arrived = self.controller.command(
@@ -411,6 +485,8 @@ class NexusRobot:
             tolerance = (
                 self.controller.config.hold_tolerance
                 if self._mode == "hold"
+                else max(self.controller.config.target_tolerance, 0.16)
+                if self.task_state is TaskState.RETURNING_TO_STATION
                 else self.controller.config.target_tolerance
             )
             self.arrived = (self.distance_to_target or 0.0) <= tolerance
@@ -418,7 +494,10 @@ class NexusRobot:
                 self.busy = False
         at_final_goal = self._advance_route_if_needed()
         if at_final_goal:
-            self._advance_job_after_navigation(current_tick)
+            if self.current_job is None and self.task_state is TaskState.RETURNING_TO_STATION:
+                self._complete_station_return(current_tick)
+            else:
+                self._advance_job_after_navigation(current_tick)
 
     def telemetry(self) -> dict[str, Any]:
         """Return a serializable snapshot suitable for logs or a dashboard."""
@@ -455,6 +534,9 @@ class NexusRobot:
             "completed_jobs": [job.job_id for job in self.completed_jobs],
             "yielding": self.yielding,
             "yield_reason": self.yield_reason,
+            "station_id": self.station_id,
+            "station_destination": self.station_destination,
+            "parked": self.task_state is TaskState.PARKED,
             "available": self.available,
             "unavailable_reason": self.unavailable_reason,
         }

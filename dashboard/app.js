@@ -85,7 +85,8 @@ function packageState(item, job) {
 function updateMapTooltip(item, stateText) {
   const tooltip = $("map-tooltip");
   if (!item) { tooltip.classList.add("hidden"); return; }
-  tooltip.innerHTML = `<b>${esc(item.name)}</b><span>${esc(item.category.replace("_", " "))} · Priority ${esc(item.priority)}</span><em>${esc(stateText)}</em>`;
+  const shelf = item.rack_id ? `<span>${esc(item.aisle)} · ${esc(item.rack_id)} · SLOT ${esc(item.shelf_slot)}</span><span>PICKUP ${esc(item.access_waypoint)}</span>` : "";
+  tooltip.innerHTML = `<b>${esc(item.name)}</b><span>${esc(item.category.replace("_", " "))} · Priority ${esc(item.priority)}</span>${shelf}<em>${esc(stateText)}</em>`;
 }
 
 const contextTitles = {
@@ -138,8 +139,8 @@ function toggleFocus(force) {
 }
 
 function renderMap(data) {
-  const navigationLayer = $("navigation-layer"), destinationLayer = $("destination-layer"), packageLayer = $("package-layer"), jobLayer = $("job-layer"), routeLayer = $("route-layer"), conflictLayer = $("conflict-layer"), robotLayer = $("robot-layer");
-  [navigationLayer, destinationLayer, packageLayer, jobLayer, routeLayer, conflictLayer, robotLayer].forEach((layer) => layer.replaceChildren());
+  const navigationLayer = $("navigation-layer"), stationLayer = $("station-layer"), destinationLayer = $("destination-layer"), packageLayer = $("package-layer"), jobLayer = $("job-layer"), routeLayer = $("route-layer"), conflictLayer = $("conflict-layer"), robotLayer = $("robot-layer");
+  [navigationLayer, stationLayer, destinationLayer, packageLayer, jobLayer, routeLayer, conflictLayer, robotLayer].forEach((layer) => layer.replaceChildren());
 
   const navigation = data.warehouse?.navigation;
   (navigation?.edges || []).forEach(([start, end]) => {
@@ -152,6 +153,17 @@ function renderMap(data) {
     const label = svgElement("text", {x, y: y - 32, class: "intersection-label", "text-anchor": "middle"});
     label.textContent = "CONTROLLED CROSSING";
     navigationLayer.append(label);
+  });
+
+  (data.warehouse?.stations || []).forEach((station) => {
+    const [x, y] = point(station.position);
+    const group = svgElement("g", {class: `station-node status-${station.status.toLowerCase()}`, transform: `translate(${x} ${y})`, "aria-label": `${station.label}, ${station.status}`});
+    group.append(svgElement("rect", {x: -42, y: -35, width: 84, height: 70, rx: 12, class: "station-bay"}));
+    group.append(svgElement("path", {d: "M-24 23H24M-18 17V29M18 17V29", class: "station-dock"}));
+    group.append(svgElement("path", {d: "M4 -25L-7 -8H2L-4 8L13 -13H4Z", class: "station-charge"}));
+    const label = svgElement("text", {x: 0, y: -43, class: "station-label", "text-anchor": "middle"}); label.textContent = `CHARGE BAY ${station.label}`; group.append(label);
+    const status = svgElement("text", {x: 0, y: 48, class: "station-status", "text-anchor": "middle"}); status.textContent = station.occupied_by ? `${station.occupied_by} PARKED` : station.reserved_by ? `${station.reserved_by} INBOUND` : "AVAILABLE"; group.append(status);
+    stationLayer.append(group);
   });
   (navigation?.stop_lines || []).forEach(([start, end]) => {
     const [x1, y1] = point(start), [x2, y2] = point(end);
@@ -172,13 +184,17 @@ function renderMap(data) {
 
   (data.packages || []).forEach((item) => {
     const [x, y] = point(item.position);
+    if (item.rack_id) {
+      const [slotX, slotY] = point(item.storage_position);
+      packageLayer.append(svgElement("rect", {x: slotX - 22, y: slotY - 20, width: 44, height: 40, rx: 4, class: `shelf-slot ${item.on_shelf ? "occupied" : "empty"} ${selectedPackageIds.has(item.package_id) ? "selected" : ""}`}));
+    }
     const selected = selectedPackageIds.has(item.package_id);
     const job = data.jobs.find((candidate) => candidate.job_id === item.active_job_id);
     const stateText = packageState(item, job);
     const color = {HIGH_VALUE: "#d9b85c", MEDICAL: "#f06f6f", FRAGILE: "#c58ae2", STANDARD: "#6ca6e8"}[item.category] || "#6ca6e8";
     const dimensions = item.category === "FRAGILE" ? {x: -14, y: -20, width: 28, height: 36} : item.category === "HIGH_VALUE" ? {x: -19, y: -16, width: 38, height: 28} : item.category === "MEDICAL" ? {x: -17, y: -17, width: 34, height: 30} : {x: -16, y: -18, width: 32, height: 32};
     const selectable = item.status === "AVAILABLE";
-    const group = svgElement("g", {class: `package-node category-${item.category.toLowerCase()} state-${item.status.toLowerCase()} ${selected ? "selected" : ""} ${selectable ? "selectable" : "locked"}`, transform: `translate(${x} ${y})`, tabindex: selectable ? 0 : -1, role: "button", "aria-pressed": String(selected), "aria-disabled": String(!selectable), "aria-label": `${item.name}, ${item.category}, priority ${item.priority}, ${item.status}`, "data-tooltip-id": item.package_id});
+    const group = svgElement("g", {class: `package-node ${item.on_shelf ? "on-shelf" : ""} category-${item.category.toLowerCase()} state-${item.status.toLowerCase()} ${selected ? "selected" : ""} ${selectable ? "selectable" : "locked"}`, transform: `translate(${x} ${y})`, tabindex: selectable ? 0 : -1, role: "button", "aria-pressed": String(selected), "aria-disabled": String(!selectable), "aria-label": `${item.name}, ${item.category}, priority ${item.priority}, ${item.status}, ${item.rack_id || item.location}, pickup ${item.access_waypoint || "zone"}`, "data-tooltip-id": item.package_id});
     const title = svgElement("title"); title.textContent = `${item.name}\n${item.category.replace("_", " ")} · Priority ${item.priority}\n${stateText}`; group.append(title);
     if (!["AVAILABLE", "DELIVERED"].includes(item.status)) group.setAttribute("opacity", ".82");
     group.append(svgElement("rect", {...dimensions, fill: "#ffffff", stroke: color, "stroke-width": selected ? 4 : 2, filter: selected ? "url(#soft-glow)" : ""}));
@@ -190,10 +206,10 @@ function renderMap(data) {
     } else if (item.category === "FRAGILE") {
       group.append(svgElement("path", {d: "M-14 -20 L0 -29 L14 -20", fill: color, opacity: ".62"}));
     }
-    const icon = svgElement("text", {x: 0, y: 4, fill: color, "font-size": 12, "font-weight": 950, "text-anchor": "middle"}); icon.textContent = item.category === "MEDICAL" ? "+" : item.category === "HIGH_VALUE" ? "◆" : item.category === "FRAGILE" ? "!" : "■"; group.append(icon);
-    const label = svgElement("text", {x: 0, y: 31, fill: selected ? "#0b4d7a" : "#284a5a", "font-size": 13, "font-weight": 800, "text-anchor": "middle"}); label.textContent = packageLabel(item); group.append(label);
+    const icon = svgElement("text", {x: 0, y: item.on_shelf ? -4 : 4, fill: color, "font-size": item.on_shelf ? 9 : 12, "font-weight": 950, "text-anchor": "middle"}); icon.textContent = item.category === "MEDICAL" ? "+" : item.category === "HIGH_VALUE" ? "◆" : item.category === "FRAGILE" ? "!" : "■"; group.append(icon);
+    const label = svgElement("text", {x: 0, y: item.on_shelf ? 12 : 31, fill: selected ? "#0b4d7a" : "#284a5a", "font-size": item.on_shelf ? 9 : 13, "font-weight": 800, "text-anchor": "middle"}); label.textContent = packageLabel(item); group.append(label);
     const stateColor = item.status === "AVAILABLE" ? "#65c99a" : item.status === "DELIVERED" ? "#65c99a" : item.status === "RECOVERY_PENDING" ? "#f06f6f" : "#f3b95f";
-    const status = svgElement("text", {x: 0, y: 44, fill: stateColor, "font-size": 10, "font-weight": 800, "text-anchor": "middle"}); status.textContent = stateText; group.append(status);
+    if (!item.on_shelf) { const status = svgElement("text", {x: 0, y: 44, fill: stateColor, "font-size": 10, "font-weight": 800, "text-anchor": "middle"}); status.textContent = stateText; group.append(status); }
     if (item.status === "DELIVERED") group.append(svgElement("circle", {cx: 17, cy: -17, r: 7, fill: "#dff7ed", stroke: "#159a7a", "stroke-width": 1.5}));
     if (item.status === "DELIVERED") { const check = svgElement("text", {x: 17, y: -14, fill: "#0b7d61", "font-size": 8, "font-weight": 950, "text-anchor": "middle"}); check.textContent = "✓"; group.append(check); }
     const choose = () => {
@@ -236,7 +252,7 @@ function renderMap(data) {
     if (path.length < 2) return;
     routeLayer.append(svgElement("polyline", {points: path.map(([x, y]) => `${x},${y}`).join(" "), fill: "none", stroke: robotColor(robot), "stroke-width": route.yielding ? 5 : 4, "stroke-linecap": "round", "stroke-linejoin": "round", "stroke-dasharray": route.yielding ? "4 9" : "none", opacity: ".92", "marker-end": "url(#route-arrow)"}));
     const labelPoint = path[Math.min(1, path.length - 1)];
-    const routeLabel = svgElement("text", {x: labelPoint[0], y: labelPoint[1] - 12, fill: robotColor(robot), "font-size": 13, "font-weight": 800, "text-anchor": "middle"}); routeLabel.textContent = `Robot ${robot.id}${route.yielding ? " · Yielding" : ""}`; routeLayer.append(routeLabel);
+    const routeLabel = svgElement("text", {x: labelPoint[0], y: labelPoint[1] - 12, fill: robotColor(robot), "font-size": 13, "font-weight": 800, "text-anchor": "middle"}); routeLabel.textContent = `Robot ${robot.id}${robot.state === "RETURNING" ? " · To station" : robot.yielding ? " · Yielding" : ""}`; routeLayer.append(routeLabel);
   });
 
   data.conflicts.forEach((conflict) => {
@@ -302,7 +318,7 @@ function renderRobots(data) {
       <strong>[${esc(robot.id)}]</strong>
       <span class="summary-state ${stateClass(robot.state)}">${esc(robot.state)}</span>
       <span class="summary-bars">${robot.battery.toFixed(0)}% BAT · ${robot.health_percent.toFixed(0)}% HEALTH · ${robot.reliability_score.toFixed(0)}% REL</span>
-      <span class="summary-job">${esc(robot.job_id || "NO JOB")}</span>
+      <span class="summary-job">${esc(robot.job_id || robot.station_id || "NO JOB")}</span>
     </button>`).join("");
   document.querySelectorAll(".robot-summary-card").forEach((card) => card.addEventListener("click", () => {
     selectedRobotId = card.dataset.robotId;
@@ -311,6 +327,7 @@ function renderRobots(data) {
   }));
   const robot = data.robots.find((item) => item.id === selectedRobotId) || data.robots[0];
   if (!robot) return;
+  const station = (data.warehouse?.stations || []).find((item) => item.station_id === robot.station_id);
   $("robot-detail").innerHTML = `
     <div class="robot-detail-hero"><strong>ROBOT ${esc(robot.id)}</strong><span class="state-pill ${stateClass(robot.state)}">${esc(robot.state)}</span></div>
     <dl>
@@ -319,6 +336,8 @@ function renderRobots(data) {
       <dt>HEALTH</dt><dd>${robot.health_percent.toFixed(0)}%</dd>
       <dt>RELIABILITY</dt><dd>${robot.reliability_score.toFixed(0)}%</dd>
       <dt>ACTIVE JOB</dt><dd>${esc(robot.job_id || "—")}</dd>
+      <dt>STATION</dt><dd>${esc(station?.label || "—")}</dd>
+      <dt>DESTINATION</dt><dd>${robot.state === "RETURNING" ? esc(station?.label || robot.station_id || "—") : "—"}</dd>
       <dt>TASK</dt><dd>${esc(robot.task_state)}</dd>
       <dt>PRIORITY</dt><dd>${robot.job_priority ?? "—"}</dd>
     </dl>
@@ -369,7 +388,7 @@ function renderInventory(data) {
   $("inventory-list").innerHTML = items.length ? items.map((item) => `
     <button type="button" class="inventory-row" data-inventory-package="${esc(item.package_id)}">
       <span class="inventory-symbol category-${esc(item.category.toLowerCase())}">${esc(packageLabel(item))}</span>
-      <span><b>${esc(item.name)}</b><small>${esc(item.location)} · Priority ${item.priority}</small></span>
+      <span><b>${esc(item.name)}</b><small>${esc(item.location)} · ${esc(item.shelf_slot || "ZONE")} · P${item.priority}</small></span>
       <em>${esc(item.status.replaceAll("_", " "))}</em>
     </button>`).join("") : `<div class="custody-empty">Inventory is available in Fleet Command mode.</div>`;
   document.querySelectorAll("[data-inventory-package]").forEach((row) => row.addEventListener("click", () => {
@@ -435,7 +454,7 @@ function renderCommand(data) {
   $("selection-count").textContent = count;
   $("selection-float-count").textContent = `${count} ITEM${count === 1 ? "" : "S"} SELECTED`;
   $("selection-float").classList.toggle("visible", count > 0);
-  $("selected-items").innerHTML = count ? items.map((item) => `<div class="selected-item"><span><b>${esc(item.package_id)}</b><small>${esc(item.category.replace("_", " "))} · P${item.priority}</small></span><button type="button" data-remove-package="${esc(item.package_id)}" aria-label="Remove ${esc(item.package_id)}">×</button></div>`).join("") : `<p>Choose one or more available packages.</p>`;
+  $("selected-items").innerHTML = count ? items.map((item) => `<div class="selected-item"><span><b>${esc(item.package_id)}</b><small>${esc(item.rack_id || item.location)} · PICKUP ${esc(item.access_waypoint || "ZONE")} · P${item.priority}</small></span><button type="button" data-remove-package="${esc(item.package_id)}" aria-label="Remove ${esc(item.package_id)}">×</button></div>`).join("") : `<p>Choose one or more available packages.</p>`;
   $("clear-selection-btn").disabled = count === 0;
   if (currentContext === "command") $("context-title").textContent = count ? `${count} CARGO SELECTED` : "FLEET COMMAND";
   $("priority-output").textContent = $("priority-input").value;

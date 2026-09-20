@@ -19,6 +19,8 @@ class JobStatus(str, Enum):
 
 class TaskState(str, Enum):
     IDLE = "IDLE"
+    PARKED = "PARKED"
+    RETURNING_TO_STATION = "RETURNING_TO_STATION"
     TO_PICKUP = "TO_PICKUP"
     PICKED_UP = "PICKED_UP"
     TO_DROPOFF = "TO_DROPOFF"

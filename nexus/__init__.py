@@ -16,7 +16,7 @@ from .traffic import (
     choose_right_of_way,
     predict_conflict,
 )
-from .warehouse import RestrictedArea, WarehouseNavigationMap
+from .warehouse import RestrictedArea, WarehouseNavigationMap, WarehouseStation
 
 __all__ = [
     "AuctionConfig",
@@ -42,6 +42,7 @@ __all__ = [
     "TrafficConflict",
     "TrafficManager",
     "WarehouseNavigationMap",
+    "WarehouseStation",
     "build_trajectory",
     "choose_right_of_way",
     "predict_conflict",

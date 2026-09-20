@@ -141,6 +141,7 @@
               <rect x="0" y="0" width="1000" height="680" fill="#f7fafc" />
               <rect x="62" y="46" width="876" height="584" rx="14" fill="url(#floor-grid)" stroke="#b9ccd5" stroke-width="2" />
               <g id="navigation-layer" class="navigation-layer" aria-hidden="true"></g>
+              <g id="station-layer" class="station-layer"></g>
               <g class="warehouse-scenery" aria-hidden="true">
                 <path class="safety-line" d="M205 105H382V575H205ZM618 105H795V575H618Z" />
                 <g class="conveyor" transform="translate(76 245)">
@@ -154,21 +155,17 @@
                 <g class="pallet-stack" transform="translate(98 455)"><rect y="24" width="68" height="8"/><rect x="5" y="10" width="25" height="14"/><rect x="36" width="27" height="24"/><text x="34" y="44">PALLETS</text></g>
                 <g class="pallet-stack" transform="translate(834 105)"><rect y="24" width="68" height="8"/><rect x="5" y="4" width="28" height="20"/><rect x="39" y="12" width="24" height="12"/><text x="34" y="44">PALLETS</text></g>
                 <g class="packing-station" transform="translate(565 522)"><rect width="116" height="58" rx="4"/><rect x="10" y="10" width="42" height="32"/><path d="M65 17H105M65 27H105M65 37H92"/><text x="58" y="72">PACKING STATION</text></g>
-                <g class="charging-station" transform="translate(436 576)"><rect width="50" height="31" rx="4"/><path d="M28 5L18 17H27L22 27L36 13H27Z"/><text x="25" y="43">CHARGE A</text></g>
-                <g class="charging-station" transform="translate(514 576)"><rect width="50" height="31" rx="4"/><path d="M28 5L18 17H27L22 27L36 13H27Z"/><text x="25" y="43">CHARGE B</text></g>
                 <path class="barrier" d="M72 115h68m720 450h68M455 52v30m90-30v30" />
                 <rect class="safety-pad" x="448" y="322" width="104" height="36" rx="3" />
                 <text class="scenery-label" x="500" y="344">ASSEMBLY CROSSING</text>
               </g>
               <g class="warehouse-fixtures" aria-hidden="true">
-                <rect x="240" y="132" width="112" height="190" rx="4" />
-                <rect x="240" y="368" width="112" height="190" rx="4" />
-                <rect x="648" y="132" width="112" height="190" rx="4" />
-                <rect x="648" y="368" width="112" height="190" rx="4" />
-                <text x="296" y="226">RACK 01</text><text x="296" y="462">RACK 02</text>
-                <text x="704" y="226">RACK 03</text><text x="704" y="462">RACK 04</text>
-                <text x="190" y="92" class="zone-label">North staging</text>
-                <text x="190" y="604" class="zone-label">South operations</text>
+                <g class="shelf-rack" transform="translate(240 132)"><rect width="112" height="190" rx="4"/><path d="M8 62H104M8 126H104M56 8V182"/><text x="56" y="-14" class="aisle-label">AISLE A</text><text x="56" y="18">RACK A1</text></g>
+                <g class="shelf-rack medical-rack" transform="translate(240 368)"><rect width="112" height="190" rx="4"/><path d="M8 62H104M8 126H104M56 8V182"/><text x="56" y="-14" class="aisle-label">AISLE D</text><text x="56" y="18">RACK D1 · MEDICAL</text></g>
+                <g class="shelf-rack fragile-rack" transform="translate(648 132)"><rect width="112" height="190" rx="4"/><path d="M8 94H104M56 8V182"/><text x="56" y="-14" class="aisle-label">AISLE B</text><text x="56" y="18">RACK B1 · FRAGILE</text></g>
+                <g class="shelf-rack secure-rack" transform="translate(648 368)"><rect width="112" height="190" rx="4"/><path d="M8 94H104M56 8V182"/><text x="56" y="-14" class="aisle-label">AISLE C</text><text x="56" y="18">RACK C1 · SECURE</text></g>
+                <text x="188" y="92" class="zone-label">NORTH CROSS AISLE</text>
+                <text x="188" y="604" class="zone-label">SOUTH CROSS AISLE</text>
               </g>
               <g id="destination-layer"></g>
               <g id="job-layer"></g>

@@ -467,6 +467,27 @@ body { background: var(--nexus-warm); background-image: none; }
 .warehouse-fixtures rect { fill: #c4ccd0; stroke: #8798a1; stroke-width: 2; }
 .warehouse-fixtures text { fill: #405964; font-size: 15px; font-weight: 650; letter-spacing: .01em; }
 .warehouse-fixtures .zone-label { fill: #667d89; font-size: 14px; font-weight: 600; }
+.warehouse-fixtures .shelf-rack > rect { fill: #aebac0; stroke: #718792; stroke-width: 3; }
+.warehouse-fixtures .shelf-rack > path { fill: none; stroke: #718792; stroke-width: 2; opacity: .8; }
+.warehouse-fixtures .shelf-rack > text { fill: #294b5c; font-size: 11px; font-weight: 800; text-anchor: middle; }
+.warehouse-fixtures .shelf-rack > .aisle-label { fill: #627d8b; font-size: 13px; letter-spacing: .06em; }
+.warehouse-fixtures .medical-rack > rect { stroke: #d46169; }
+.warehouse-fixtures .fragile-rack > rect { stroke: #9f6ac4; }
+.warehouse-fixtures .secure-rack > rect { stroke: #b69132; }
+.shelf-slot { fill: rgba(255,255,255,.24); stroke: rgba(73,99,112,.52); stroke-width: 1; stroke-dasharray: 3 2; pointer-events: none; }
+.shelf-slot.occupied { fill: rgba(255,255,255,.52); }
+.shelf-slot.empty { fill: rgba(246,249,249,.16); stroke: #7f929c; opacity: .55; }
+.shelf-slot.selected { stroke: #247ee7; stroke-width: 4; stroke-dasharray: none; filter: url(#soft-glow); }
+.package-node.on-shelf { cursor: pointer; }
+
+.station-node .station-bay { fill: #e8f4f2; stroke: #58a69d; stroke-width: 3; stroke-dasharray: 6 4; }
+.station-node .station-dock { fill: none; stroke: #447783; stroke-width: 3; stroke-linecap: round; }
+.station-node .station-charge { fill: #16a6a0; stroke: none; }
+.station-node .station-label { fill: #315565; font-size: 11px; font-weight: 850; letter-spacing: .03em; }
+.station-node .station-status { fill: #168262; font-size: 10px; font-weight: 800; }
+.station-node.status-reserved .station-bay { fill: #edf4fd; stroke: #247ee7; }
+.station-node.status-reserved .station-status { fill: #176fcf; }
+.station-node.status-occupied .station-bay { fill: #dff5ee; stroke: #159a7a; stroke-dasharray: none; }
 .warehouse-scenery text { fill: #637b86; font-size: 11px; font-weight: 600; letter-spacing: 0; }
 .warehouse-scenery .scenery-label { fill: #956d24; font-size: 11px; }
 .warehouse-scenery .safety-line { opacity: .25; }
@@ -520,6 +541,11 @@ html[data-theme="dark"] .inventory-row:hover { background: #102938; }
 html[data-theme="dark"] .navigation-layer .aisle-path { stroke: #1a303b; }
 html[data-theme="dark"] .navigation-layer .aisle-path:nth-child(odd) { stroke: #1d3541; }
 html[data-theme="dark"] .navigation-layer .intersection-zone { fill: #152a34; }
+html[data-theme="dark"] .warehouse-fixtures .shelf-rack > rect { fill: #243d49; stroke: #577281; }
+html[data-theme="dark"] .warehouse-fixtures .shelf-rack > path { stroke: #577281; }
+html[data-theme="dark"] .warehouse-fixtures .shelf-rack > text { fill: #d2e2e8; }
+html[data-theme="dark"] .station-node .station-bay { fill: #112c36; }
+html[data-theme="dark"] .station-node .station-label { fill: #d7e7ed; }
 
 @media (max-width: 1240px) {
   .workspace-nav-button { padding-inline: 7px; }

@@ -18,6 +18,10 @@ class WarehousePackage:
     risk: str
     location: str
     access_position: tuple[float, float] | None = None
+    aisle: str | None = None
+    rack_id: str | None = None
+    shelf_slot: str | None = None
+    access_waypoint: str | None = None
     status: str = "AVAILABLE"
     current_custodian: str | None = None
     previous_custodian: str | None = None
@@ -44,6 +48,12 @@ class WarehousePackage:
             "location": self.location,
             "storage_position": list(self.storage_position),
             "access_position": list(self.access_position or self.position),
+            "access_waypoint": self.access_waypoint,
+            "aisle": self.aisle,
+            "rack_id": self.rack_id,
+            "shelf_slot": self.shelf_slot,
+            "on_shelf": self.position == self.storage_position
+            and self.status not in {"IN_TRANSIT", "RECOVERY_PENDING", "DELIVERED"},
             "status": self.status,
             "current_custodian": self.current_custodian,
             "previous_custodian": self.previous_custodian,
@@ -66,6 +76,51 @@ class WarehouseDestination:
             "position": list(self.position),
             "kind": self.kind,
             "approach_position": list(self.approach_position or self.position),
+        }
+
+
+@dataclass
+class WarehouseStation:
+    """Reservable robot parking/charging bay connected to an aisle waypoint."""
+
+    station_id: str
+    label: str
+    position: tuple[float, float]
+    access_waypoint: str
+    occupied_by: str | None = None
+    reserved_by: str | None = None
+    status: str = "AVAILABLE"
+
+    def reserve(self, robot_id: str) -> None:
+        if self.status != "AVAILABLE" and self.reserved_by != robot_id:
+            raise ValueError(f"station {self.station_id} is not available")
+        self.occupied_by = None
+        self.reserved_by = robot_id
+        self.status = "RESERVED"
+
+    def occupy(self, robot_id: str) -> None:
+        if self.reserved_by not in {None, robot_id}:
+            raise ValueError(f"station {self.station_id} is reserved by another robot")
+        self.reserved_by = None
+        self.occupied_by = robot_id
+        self.status = "OCCUPIED"
+
+    def release(self, robot_id: str | None = None) -> None:
+        if robot_id is not None and robot_id not in {self.occupied_by, self.reserved_by}:
+            return
+        self.occupied_by = None
+        self.reserved_by = None
+        self.status = "AVAILABLE"
+
+    def telemetry(self) -> dict[str, Any]:
+        return {
+            "station_id": self.station_id,
+            "label": self.label,
+            "position": list(self.position),
+            "access_waypoint": self.access_waypoint,
+            "occupied_by": self.occupied_by,
+            "reserved_by": self.reserved_by,
+            "status": self.status,
         }
 
 
@@ -177,6 +232,14 @@ class WarehouseNavigationMap:
             points.append(destination)
         return points
 
+    def route_distance(
+        self,
+        start: tuple[float, float],
+        destination: tuple[float, float],
+    ) -> float:
+        points = [start, *self.route(start, destination)]
+        return sum(math.dist(first, second) for first, second in zip(points, points[1:]))
+
     def point_is_walkable(self, point: tuple[float, float]) -> bool:
         return not any(area.contains(point, margin=0.02) for area in self.RESTRICTED_AREAS)
 
@@ -225,24 +288,34 @@ class WarehouseNavigationMap:
 
 def create_packages() -> dict[str, WarehousePackage]:
     items = (
-        WarehousePackage("BOX-101", "Standard Box", (0.30, 1.00), "STANDARD", 4, "LOW", "WEST STAGING", (0.18, 0.98)),
-        WarehousePackage("BOX-001", "Inbound Box 1", (0.16, 1.46), "STANDARD", 3, "LOW", "INBOUND", (0.18, 1.92)),
-        WarehousePackage("BOX-002", "Inbound Box 2", (0.38, 1.88), "STANDARD", 4, "LOW", "INBOUND", (0.82, 1.92)),
-        WarehousePackage("BOX-003", "Packing Box", (1.14, 0.16), "STANDARD", 3, "LOW", "PACKING", (1.18, 0.08)),
-        WarehousePackage("ELECTRONICS-01", "Electronics", (1.15, 1.55), "FRAGILE", 7, "MEDIUM", "STORAGE B", (1.18, 1.92)),
-        WarehousePackage("GLASS-01", "Glass Assembly", (1.82, 1.46), "FRAGILE", 8, "HIGH", "STORAGE B", (1.82, 1.92)),
-        WarehousePackage("SENSOR-RACK-01", "Sensor Rack", (1.02, 0.94), "FRAGILE", 6, "MEDIUM", "ASSEMBLY", (1.18, 0.98)),
-        WarehousePackage("MED-KIT-01", "Medical Kit", (0.45, 1.65), "MEDICAL", 10, "CRITICAL", "MEDICAL", (0.82, 1.92)),
-        WarehousePackage("MED-SUPPLY-02", "Medical Supplies", (0.17, 0.55), "MEDICAL", 8, "HIGH", "MEDICAL STORAGE", (0.18, 0.98)),
-        WarehousePackage("MEDICAL-CRITICAL", "Critical Medical Payload", (0.60, 1.88), "MEDICAL", 10, "CRITICAL", "COLD STORAGE", (0.82, 1.92)),
-        WarehousePackage("FR-301", "Fragile Cargo", (1.70, 1.00), "FRAGILE", 8, "HIGH", "EAST STAGING", (1.82, 0.98)),
-        WarehousePackage("HV-001", "High-Value Crate", (1.40, 0.75), "HIGH_VALUE", 9, "HIGH", "STORAGE A", (1.18, 0.08)),
-        WarehousePackage("SERVER-MODULE-01", "Server Module", (1.83, 0.51), "HIGH_VALUE", 9, "HIGH", "SECURE STORAGE", (1.82, 0.08)),
-        WarehousePackage("PRECISION-PARTS-01", "Precision Parts", (0.58, 0.15), "HIGH_VALUE", 8, "HIGH", "SECURE STORAGE", (0.82, 0.08)),
-        WarehousePackage("PART-401", "Parts Bin", (1.00, 1.70), "STANDARD", 5, "LOW", "NORTH STAGING", (1.18, 1.92)),
-        WarehousePackage("SUPPLY-CRATE-01", "Supply Crate", (0.82, 0.62), "STANDARD", 4, "LOW", "ASSEMBLY", (0.82, 0.98)),
+        WarehousePackage("BOX-101", "Standard Box", (0.45, 1.20), "STANDARD", 4, "LOW", "AISLE A / RACK A1", (0.82, 1.45), "AISLE A", "RACK A1", "A1-01", "A1-PICKUP"),
+        WarehousePackage("BOX-001", "Inbound Box 1", (0.58, 1.20), "STANDARD", 3, "LOW", "AISLE A / RACK A1", (0.82, 1.45), "AISLE A", "RACK A1", "A1-02", "A1-PICKUP"),
+        WarehousePackage("BOX-002", "Inbound Box 2", (0.45, 1.45), "STANDARD", 4, "LOW", "AISLE A / RACK A1", (0.82, 1.45), "AISLE A", "RACK A1", "A1-03", "A1-PICKUP"),
+        WarehousePackage("BOX-003", "Packing Box", (0.58, 1.45), "STANDARD", 3, "LOW", "AISLE A / RACK A1", (0.82, 1.45), "AISLE A", "RACK A1", "A1-04", "A1-PICKUP"),
+        WarehousePackage("PART-401", "Parts Bin", (0.45, 1.70), "STANDARD", 5, "LOW", "AISLE A / RACK A1", (0.82, 1.45), "AISLE A", "RACK A1", "A1-05", "A1-PICKUP"),
+        WarehousePackage("SUPPLY-CRATE-01", "Supply Crate", (0.58, 1.70), "STANDARD", 4, "LOW", "AISLE A / RACK A1", (0.82, 1.45), "AISLE A", "RACK A1", "A1-06", "A1-PICKUP"),
+        WarehousePackage("ELECTRONICS-01", "Electronics", (1.43, 1.27), "FRAGILE", 7, "MEDIUM", "AISLE B / RACK B1", (1.18, 1.45), "AISLE B", "RACK B1", "B1-01", "B1-PICKUP"),
+        WarehousePackage("GLASS-01", "Glass Assembly", (1.56, 1.27), "FRAGILE", 8, "HIGH", "AISLE B / RACK B1", (1.18, 1.45), "AISLE B", "RACK B1", "B1-02", "B1-PICKUP"),
+        WarehousePackage("SENSOR-RACK-01", "Sensor Rack", (1.43, 1.62), "FRAGILE", 6, "MEDIUM", "AISLE B / RACK B1", (1.18, 1.45), "AISLE B", "RACK B1", "B1-03", "B1-PICKUP"),
+        WarehousePackage("FR-301", "Fragile Cargo", (1.56, 1.62), "FRAGILE", 8, "HIGH", "AISLE B / RACK B1", (1.18, 1.45), "AISLE B", "RACK B1", "B1-04", "B1-PICKUP"),
+        WarehousePackage("HV-001", "High-Value Crate", (1.43, 0.34), "HIGH_VALUE", 9, "HIGH", "AISLE C / RACK C1", (1.18, 0.55), "AISLE C", "RACK C1", "C1-01", "C1-PICKUP"),
+        WarehousePackage("SERVER-MODULE-01", "Server Module", (1.56, 0.34), "HIGH_VALUE", 9, "HIGH", "AISLE C / RACK C1", (1.18, 0.55), "AISLE C", "RACK C1", "C1-02", "C1-PICKUP"),
+        WarehousePackage("PRECISION-PARTS-01", "Precision Parts", (1.50, 0.68), "HIGH_VALUE", 8, "HIGH", "AISLE C / RACK C1", (1.18, 0.55), "AISLE C", "RACK C1", "C1-03", "C1-PICKUP"),
+        WarehousePackage("MED-KIT-01", "Medical Kit", (0.43, 0.34), "MEDICAL", 10, "CRITICAL", "AISLE D / RACK D1", (0.82, 1.92), "AISLE D", "RACK D1", "D1-01", "D1-NORTH-PICKUP"),
+        WarehousePackage("MED-SUPPLY-02", "Medical Supplies", (0.58, 0.34), "MEDICAL", 8, "HIGH", "AISLE D / RACK D1", (0.82, 0.55), "AISLE D", "RACK D1", "D1-02", "D1-PICKUP"),
+        WarehousePackage("MEDICAL-CRITICAL", "Critical Medical Payload", (0.50, 0.68), "MEDICAL", 10, "CRITICAL", "AISLE D / RACK D1", (0.82, 0.55), "AISLE D", "RACK D1", "D1-03", "D1-PICKUP"),
     )
     return {item.package_id: item for item in items}
+
+
+def create_stations() -> dict[str, WarehouseStation]:
+    stations = (
+        WarehouseStation("STATION-NW", "NW-01", (0.08, 1.92), "N-0-2"),
+        WarehouseStation("STATION-NE", "NE-01", (1.92, 1.92), "N-3-2"),
+        WarehouseStation("STATION-SW", "SW-01", (0.08, 0.08), "N-0-0"),
+        WarehouseStation("STATION-SE", "SE-01", (1.92, 0.08), "N-3-0"),
+    )
+    return {station.station_id: station for station in stations}
 
 
 def create_destinations() -> dict[str, WarehouseDestination]:

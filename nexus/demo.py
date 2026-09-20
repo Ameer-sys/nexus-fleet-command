@@ -8,6 +8,7 @@ from typing import Any
 
 from .fleet import Fleet
 from .jobs import Job, JobStatus
+from .navigation import NavigationConfig, NavigationController
 from .robot import NexusRobot
 from .solana import ChainStatus, SolanaCustodyLedger
 from .traffic import TrafficConfig, TrafficManager, build_trajectory
@@ -17,6 +18,7 @@ from .warehouse import (
     WarehousePackage,
     create_destinations,
     create_packages,
+    create_stations,
 )
 
 
@@ -69,6 +71,7 @@ class WarehouseDemo:
         self.events: list[NexusEvent] = []
         self.packages = create_packages()
         self.destinations = create_destinations()
+        self.stations = create_stations()
         self.navigation_map = WarehouseNavigationMap()
         self.last_decision: dict[str, Any] | None = None
         self.decision_history: list[dict[str, Any]] = []
@@ -78,6 +81,7 @@ class WarehouseDemo:
         self._chain_status_seen: dict[int, str] = {}
         self.fleet = self._create_fleet(
             self.navigation_map,
+            self.stations.values(),
             include_scripted_jobs=mode == "scripted",
         )
         self.urgent = Job(
@@ -101,6 +105,7 @@ class WarehouseDemo:
     @staticmethod
     def _create_fleet(
         navigation_map: WarehouseNavigationMap,
+        stations,
         *,
         include_scripted_jobs: bool = True,
     ) -> Fleet:
@@ -115,19 +120,48 @@ class WarehouseDemo:
                 yield_timeout_ticks=2_400,
             )
         )
-        fleet = Fleet(
-            [
-                NexusRobot("A", offset=(0.0, 0.0), health_percent=96, reliability_score=98, navigation_map=navigation_map),
-                NexusRobot("B", offset=(2.0, 0.0), health_percent=74, reliability_score=82, navigation_map=navigation_map),
-                NexusRobot("C", offset=(0.0, 2.0), health_percent=99, reliability_score=97, navigation_map=navigation_map),
-            ],
-            traffic_manager=traffic,
+        controller = (
+            NavigationController(
+                NavigationConfig(
+                    max_forward_velocity=0.24,
+                    distance_kp=0.50,
+                )
+            )
+            if include_scripted_jobs
+            else None
         )
+        profiles = (
+            ((96, 98), (74, 82), (99, 97))
+            if include_scripted_jobs
+            else ((100, 100), (74, 82), (88, 90))
+        )
+        robots = [
+            NexusRobot(
+                robot_id,
+                controller=controller,
+                health_percent=health,
+                reliability_score=reliability,
+                navigation_map=navigation_map,
+            )
+            for robot_id, (health, reliability) in zip(("A", "B", "C"), profiles)
+        ]
+        station_positions = ((0.08, 1.92), (1.92, 1.92), (0.08, 0.08))
+        for robot, desired in zip(robots, station_positions):
+            current = robot.position
+            robot.offset = (desired[0] - current[0], desired[1] - current[1])
+        fleet = Fleet(
+            robots,
+            traffic_manager=traffic,
+            stations=stations,
+        )
+        fleet.initialize_station_occupancy("A", "STATION-NW")
+        fleet.initialize_station_occupancy("B", "STATION-NE")
+        fleet.initialize_station_occupancy("C", "STATION-SW")
         if include_scripted_jobs:
             for job in (
-                Job("JOB-A", "PRIORITY-PART", (0.2, 0.1), (1.8, 1.8), priority=8),
+                Job("JOB-A", "PRIORITY-PART", (0.18, 0.08), (0.18, 0.98), priority=8),
                 Job("JOB-B", "STANDARD-BOX", (1.8, 0.1), (0.2, 1.8), priority=3),
-                Job("JOB-C", "SENSOR-KIT", (0.18, 1.92), (0.82, 1.92), priority=5),
+                Job("JOB-C", "SENSOR-KIT", (0.18, 1.92), (0.82, 0.98), priority=5),
             ):
                 fleet.submit_job(job)
         return fleet
@@ -587,6 +621,24 @@ class WarehouseDemo:
                     job_id=job.job_id,
                     severity="success",
                 )
+        elif event_type == "station_returning":
+            station = self.stations[event["station_id"]]
+            self._record(
+                "FLEET",
+                f"Robot {event['robot_id']} returning to {station.label}",
+                robot_ids=(event["robot_id"],),
+                severity="info",
+                details={"station_id": station.station_id},
+            )
+        elif event_type == "station_parked":
+            station = self.stations[event["station_id"]]
+            self._record(
+                "FLEET",
+                f"Robot {event['robot_id']} parked at {station.label}",
+                robot_ids=(event["robot_id"],),
+                severity="success",
+                details={"station_id": station.station_id},
+            )
         elif event_type == "robot_unavailable":
             self._record(
                 "FAULT",
@@ -662,6 +714,7 @@ class WarehouseDemo:
             and self.priority_submitted
             and self.failure_injected
             and self.fleet.all_jobs_finished
+            and self.fleet.all_robots_parked
         ):
             self.finished = True
             self.running = False
@@ -670,7 +723,12 @@ class WarehouseDemo:
                 "Autonomous warehouse run completed",
                 severity="success",
             )
-        elif self.mode == "manual" and self.fleet.jobs and self.fleet.all_jobs_finished:
+        elif (
+            self.mode == "manual"
+            and self.fleet.jobs
+            and self.fleet.all_jobs_finished
+            and self.fleet.all_robots_parked
+        ):
             self.finished = True
             self.running = False
             self._record(
@@ -687,6 +745,10 @@ class WarehouseDemo:
             state = "UNAVAILABLE"
         elif robot.yielding:
             state = "YIELDING"
+        elif robot.task_state.value == "RETURNING_TO_STATION":
+            state = "RETURNING"
+        elif robot.task_state.value == "PARKED":
+            state = "PARKED"
         elif robot.busy:
             state = "ACTIVE"
         else:
@@ -784,6 +846,7 @@ class WarehouseDemo:
                 "y_min": 0.0,
                 "y_max": 2.0,
                 "navigation": self.navigation_map.telemetry(),
+                "stations": [station.telemetry() for station in self.stations.values()],
             },
             "robots": robots,
             "jobs": jobs,
